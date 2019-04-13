@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ncurses.h>
 #include <pthread.h>
+#include <unistd.h>
 
 typedef struct point{
     int x;
@@ -49,34 +50,35 @@ void draw_second_rect(){
 
 }
 
+void hide_terminal_cursor(){
+    curs_set(0);
+}
+
+void my_sleep(float seconds){
+    usleep(seconds*1000000);
+}
+
 int main() {
     initscr();
 
-//    draw_first_rect();
-    // the screen content in memory is reflected to the terminal
-//    refresh(); wait_key_press(); clear();
+    hide_terminal_cursor();
+    char symbol = 'X';
+    point start = {0,0}, end = {98,26}, current_position = {start.x, start.y};
+    area a = {4,4};
 
-//    draw_second_rect()
-//    refresh(); wait_key_press(); clear();
+    while( current_position.x <= end.x && current_position.y <= end.y ){
+        // write the char
+        draw_square(current_position,a,symbol);
+        refresh();
+        my_sleep(0.1);
+        // clear the char
+        draw_square(current_position,a,' ');
+        refresh();
+        current_position.y++;
+        current_position.x += 4;
+    }
 
-
-    // create windows
-    int height=10, width=20, start_y=10, start_x=10;
-    WINDOW *window = newwin(height, width, start_y, start_x);
-    // make a border to the window
-//    box(window, 0, 0);
-//    refresh();
-    // there's functions to write inside a specific windo
-//    wmove(window, 1, 1); // move to the inner section of the window
-    wprintw(window, "%s","Hello");
-    wrefresh(window);
-//    wait_key_press();
 
     endwin();
-
-
-    pthread_attr_t foo;
-
-
     return 0;
 }
