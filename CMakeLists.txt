@@ -4,3 +4,6 @@ project(multidisplay C)
 set(CMAKE_C_STANDARD 99)
 
 add_executable(multidisplay main.c)
+
+target_link_libraries(multidisplay json-c)
+
