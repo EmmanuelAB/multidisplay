@@ -18,7 +18,7 @@
 // Where context of each thread will be saved
 ucontext_t threads_contexts[NUM_OF_THREADS];
 
-// Sheduler stuff
+// Scheduler stuff
 ucontext_t scheduler_context;
 void *scheduler_stack;
 
@@ -29,8 +29,10 @@ int current_context_index = -1; // JUST TO MAKE IT 0 THE FIRST TIME
 
 void thread_function(int id){
     for (int i = 0; i < 1000; ++i) {
-        printf("thread %d: %d\n", id, i);
-        usleep(0.1 * TO_MICROSECONDS);
+        move(id, 0);
+        printw("%d",i);
+        refresh();
+        usleep(0.01 * TO_MICROSECONDS);
     }
     printf("thread finished\n");
 }
@@ -63,7 +65,7 @@ void create_threads_contexts(ucontext_t contexts[]){
 
 ucontext_t *determine_next_context(){
     // Determine the next
-    int next_index = current_context_index + 1 % NUM_OF_THREADS;
+    int next_index = (current_context_index + 1) % NUM_OF_THREADS;
 
     // Set the next as the current
     current_context_index = next_index;
@@ -88,7 +90,7 @@ void schedule_next_thread(){
 
 
 void handle_alarm(int signal_number){
-    printf("thread was interrupted\n");
+//    printf("thread was interrupted\n");
 
     // Create a context to run the scheduler
     getcontext(&scheduler_context);
@@ -133,6 +135,8 @@ void initialize_scheduler(){
 
 
 int main() {
+    // Initialize ncurses screen
+    initscr();
 
     // Establish what to do when the alarm activates
     setup_alarm_handler();
