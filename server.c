@@ -4,7 +4,7 @@
 #include "lib/area.h"
 #include "lib/point.h"
 
-#define MAX_CLIENTS 2
+#define MAX_CLIENTS 3
 #define EMPTY_CHAR '-'
 
 
@@ -37,7 +37,8 @@ void ask_terminal_size(area *dimension){
 
 void spread_size(area dimension, int *clients_sockets, int num_of_clients){
     char message_buffer[100];
-    sprintf(message_buffer, "%d,%d",dimension.height, dimension.width);
+    int divided_width = dimension.width / num_of_clients;
+    sprintf(message_buffer, "%d,%d",dimension.height, divided_width);
     for (int i = 0; i < num_of_clients; ++i) {
         send(clients_sockets[i], message_buffer, sizeof(message_buffer), NO_FLAGS);
     }
@@ -62,20 +63,25 @@ void print_char_matrix(char *matrix, area dimension){
     }
 }
 
-void update_monitors(int sockets_to_clients[], char *canvas, area dimension){
+void update_monitors(int sockets_to_clients[], char *canvas, area dimension, int num_clients){
     char message[500]; // this will hold all the characters to be sent
 
-    // serialize the canvas to message (copy each row to message)
-    int offset = 0;
-    for (int i = 0; i < dimension.height; i++) {
-        strncpy(message+offset, canvas+offset, dimension.width);
-        offset += dimension.width;
-    }
-
+    int message_offset = 0;
+    int canvas_offset = 0;
+    int segment_width = dimension.width / num_clients;
 
     // send the message to the monitors
     for (int i = 0; i < sizeof(sockets_to_clients); ++i) {
+        message_offset = 0;
+        // serialize the canvas to message (copy each row to message)
+
+        // copy segments of rows to message
+        for (int j = 0; j < dimension.height; ++j) {
+            strncpy(message+message_offset, canvas+j*dimension.width+canvas_offset, segment_width);
+            message_offset += segment_width;
+        }
         send(sockets_to_clients[i], message, strlen(message), NO_FLAGS);
+        canvas_offset += segment_width;
     }
 }
 
@@ -91,17 +97,17 @@ void test(){
 //    exit(0);
 
     // test serializing matrix
-    char *canvas = "abcdefghi";
-    area a = {3,3};
+    char *canvas = "abcdefghijkl";
+    area a = {4,3};
     print_char_matrix(canvas,a);
-
-    update_monitors(NULL, canvas, a);
+    update_monitors(NULL, canvas, a, MAX_CLIENTS);
     exit(0);
 }
 
 int main() {
 
 //    test();
+
     setbuf(stdout, NULL);
 
     int socket_fd = start_server();
@@ -124,7 +130,7 @@ int main() {
     for (int i = 0; i < dimension.width; ++i) {
         canvas[0][i] = 'X';
         printf("Char written\n");
-        update_monitors(clients_sockets, canvas, dimension); //TODO: pass canvas distributions as param?
+        update_monitors(clients_sockets, canvas, dimension, MAX_CLIENTS); //TODO: pass canvas distributions as param?
         printf("State sent\n");
         sleep(1);
         canvas[0][i] = EMPTY_CHAR;
@@ -133,7 +139,10 @@ int main() {
     }
 
     char end = 0;
-    send(clients_sockets[0],&end,1,NO_FLAGS);
+    for (int i = 0; i < MAX_CLIENTS; ++i) {
+        send(clients_sockets[i],&end,1,NO_FLAGS);
+        close(clients_sockets[i]);
+    }
 
 }
 

@@ -67,6 +67,9 @@ int main(){
         if(bytes_received == 1) break;
         display_data(buffer, assigned_size);
     }
+    // close connection
+    close(socket_fd);
+
     endwin();
     
     printf("End of animation\n");
