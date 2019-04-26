@@ -7,6 +7,19 @@
 #include "ncurses.h"
 #include "lib/area.h"
 
+
+void display_data(char *data, area terminal_size) {
+    int i = 0; // index to
+    for (int row = 0; row < terminal_size.height; row++) {
+        for (int column = 0; column < terminal_size.width ; column++) {
+            move(row, column);
+            printw("%c", data[i]);
+            i++;
+        }
+    }
+    refresh();
+}
+
 void full_terminal(area terminal_size, char symbol){
     for (int row = 0; row < terminal_size.height; ++row) {
         for (int column = 0; column < terminal_size.width; ++column) {
@@ -37,7 +50,7 @@ int main(){
     refresh();
 
     // read assigned dimension
-    char buffer[100];
+    char buffer[500];
     recv(socket_fd, buffer, sizeof(buffer), NO_FLAGS);
     area assigned_size;
     sscanf(buffer,"%d,%d", &assigned_size.height, &assigned_size.width);
@@ -47,10 +60,16 @@ int main(){
     resizeterm(assigned_size.height, assigned_size.width);
     refresh();
 
-    // wait
-    sleep(2);
-
+    // start receiving data from the server
+    int bytes_received;
+    while(1){
+        bytes_received = recv(socket_fd, buffer, sizeof(buffer), NO_FLAGS);
+        if(bytes_received == 1) break;
+        display_data(buffer, assigned_size);
+    }
     endwin();
+    
+    printf("End of animation\n");
 
 
     return 0;
