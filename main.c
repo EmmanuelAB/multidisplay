@@ -1,22 +1,39 @@
-#include <stdio.h>
-#include <json-c/json.h>
+#include "Language_Parse.h"
 
-int main() {
-    char buffer[1024];
+/*
+Isaac Mena L
+27/04/19
+After parse the json file you can use the figure_list to iterate over the figures, ask for their
+attributes and use them as you want.
+-----------------------------
+Command to compile and run from shell: gcc main.c Language_Parse.c -ljson-c -o b && ./b
+*/
 
-    FILE *file = fopen("../example.json","r");
-    fread(buffer, sizeof(buffer), 1, file);
-    fclose(file);
+void figure_list_to_string();
 
-    struct json_object *parsed_json = json_tokener_parse(buffer);
+int main(){
 
-    struct json_object *angle;
+    printf("\nStarting json parse\n");
 
-    json_object_object_get_ex(parsed_json,"final_angle", &angle);
+    parse_file();
 
-//    printf("Angle is %s \n", json_object_get_string(angle));
-    printf("Angle is %i \n", json_object_get_int(angle));
-
-
+    // Example of printing all the attributes of the figures once they are parsed.
+    figure_list_to_string();
     return 0;
+}
+
+void figure_list_to_string(){
+    for (int i = 0; i < num_objects; i++) {
+        printf("\nFigure #%d\n", i+1);
+        printf("\nType: %d", figure_list[i].type);
+        printf("\nShape: %s", figure_list[i].shape);
+        printf("\nStart time: %d", figure_list[i].start_time);
+        printf("\nEnd time: %d", figure_list[i].end_time);
+        printf("\nInitial x: %d", figure_list[i].initial_pos_x);
+        printf("\nInitial y: %d", figure_list[i].initial_pos_y);
+        printf("\nEnd x: %d", figure_list[i].end_pos_x);
+        printf("\nEnd y: %d", figure_list[i].end_pos_y);
+        printf("\nInitial angle: %d", figure_list[i].initial_angle);
+        printf("\nEnd angle: %d\n", figure_list[i].end_angle);
+    }
 }

@@ -1,6 +1,53 @@
 {
-  "start":1,
-  "end": 2,
-  "start_angle":0,
-  "final_angle": 90
+  "objects" :
+  [
+        {
+          "type" : 1,
+          "shape" : "square",
+          "start_time" : 0,
+          "end_time" : 6,
+          "initial_pos_x" : 5,
+          "initial_pos_y" : 32,
+          "end_pos_x" : 6,
+          "end_pos_y" : 44,
+          "initial_angle" : 45,
+          "end_angle" : 90
+        },
+        {
+          "type" : 3,
+          "shape" : "arrow",
+          "start_time" : 5,
+          "end_time" : 9,
+          "initial_pos_x" : 2,
+          "initial_pos_y" : 4,
+          "end_pos_x" : 45,
+          "end_pos_y" : 12,
+          "initial_angle" : 90,
+          "end_angle" : 90
+        },
+        {
+          "type" : 4,
+          "shape" : "cross",
+          "start_time" : 200,
+          "end_time" : 6,
+          "initial_pos_x" : 100,
+          "initial_pos_y" : 50,
+          "end_pos_x" : 55,
+          "end_pos_y" : 450,
+          "initial_angle" : 180,
+          "end_angle" : 45
+        },
+        {
+          "type" : 2,
+          "shape" : "square",
+          "start_time" : 6,
+          "end_time" : 12,
+          "initial_pos_x" : 45,
+          "initial_pos_y" : 100,
+          "end_pos_x" : 150,
+          "end_pos_y" : 35,
+          "initial_angle" : 90,
+          "end_angle" : 270
+        }
+  ]
 }
