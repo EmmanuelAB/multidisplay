@@ -3,4 +3,4 @@ project(multidisplay C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(multidisplay main.c)
+add_executable(multidisplay main.c list.c list.h)
