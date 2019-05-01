@@ -3,7 +3,7 @@
   [
         {
           "type" : 1,
-          "shape" : "square",
+          "figure_file": "figure1",
           "start_time" : 0,
           "end_time" : 6,
           "initial_pos_x" : 5,
@@ -15,7 +15,7 @@
         },
         {
           "type" : 3,
-          "shape" : "arrow",
+          "figure_file": "figure1",
           "start_time" : 5,
           "end_time" : 9,
           "initial_pos_x" : 2,
@@ -27,7 +27,7 @@
         },
         {
           "type" : 4,
-          "shape" : "cross",
+          "figure_file": "figure1",
           "start_time" : 200,
           "end_time" : 6,
           "initial_pos_x" : 100,
@@ -39,7 +39,7 @@
         },
         {
           "type" : 2,
-          "shape" : "square",
+          "figure_file": "figure1",
           "start_time" : 6,
           "end_time" : 12,
           "initial_pos_x" : 45,

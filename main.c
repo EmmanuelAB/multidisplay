@@ -26,7 +26,7 @@ void figure_list_to_string(){
     for (int i = 0; i < num_objects; i++) {
         printf("\nFigure #%d\n", i+1);
         printf("\nType: %d", figure_list[i].type);
-        printf("\nShape: %s", figure_list[i].shape);
+        printf("\nShape:\n%s", figure_list[i].figure);
         printf("\nStart time: %d", figure_list[i].start_time);
         printf("\nEnd time: %d", figure_list[i].end_time);
         printf("\nInitial x: %d", figure_list[i].initial_pos_x);

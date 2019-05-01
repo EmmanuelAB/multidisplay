@@ -3,13 +3,14 @@
 
 #include <stdio.h>
 #include <json-c/json.h>
+#include <string.h>
 
 #define BUFFER_SIZE 2048
 #define MAX_FIGURES_ALLOWED 25
 
 struct figure {
     int type;
-    const char* shape;
+    char* figure;
     int start_time;
     int end_time;
     int initial_pos_x;
@@ -30,6 +31,7 @@ void parse_file();
 void read_file();
 void set_figure_list();
 void set_figure_from_list();
+char* parse_figure_file(const char* filename);
 struct figure build_figure_from_json_figure(struct json_object *figure);
 
 #endif //MULTIDISPLAY_LANGUAGE_PARSE_H

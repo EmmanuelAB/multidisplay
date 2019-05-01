@@ -33,7 +33,7 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
     printf("\nBuilding figure\n");
 
     struct json_object *type;
-    struct json_object *shape;
+    struct json_object *figure_file_name;
     struct json_object *start_time;
     struct json_object *end_time;
     struct json_object *initial_pos_x;
@@ -44,7 +44,7 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
     struct json_object *end_angle;
 
     json_object_object_get_ex(json_figure, "type", &type);
-    json_object_object_get_ex(json_figure, "shape", &shape);
+    json_object_object_get_ex(json_figure, "figure_file", &figure_file_name);
     json_object_object_get_ex(json_figure, "start_time", &start_time);
     json_object_object_get_ex(json_figure, "end_time", &end_time);
     json_object_object_get_ex(json_figure, "initial_pos_x", &initial_pos_x);
@@ -56,7 +56,11 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
 
     struct figure current_figure;
     current_figure.type = json_object_get_int(type);
-    current_figure.shape = json_object_get_string(shape);
+
+    // Read the figure file and save it in the structure
+    const char* figure_file = json_object_get_string(figure_file_name);
+    current_figure.figure = parse_figure_file(figure_file);
+
     current_figure.start_time= json_object_get_int(start_time);
     current_figure.end_time = json_object_get_int(end_time);
     current_figure.initial_pos_x= json_object_get_int(initial_pos_x);
@@ -68,6 +72,15 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
 
     return current_figure;
 
+}
+
+char* parse_figure_file(const char* filename){
+    printf("\nReading figure file\n");
+    FILE* file = fopen(strcat((char*)filename, ".txt"), "r");
+    static char content[BUFFER_SIZE];
+    fread(content, BUFFER_SIZE, 1, file);
+    fclose(file);
+    return content;
 }
 
 void parse_file(){
