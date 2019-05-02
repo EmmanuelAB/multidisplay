@@ -11,6 +11,8 @@
 struct figure {
     int type;
     char* figure;
+    int rows;
+    int cols;
     int start_time;
     int end_time;
     int initial_pos_x;

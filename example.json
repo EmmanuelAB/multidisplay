@@ -3,6 +3,8 @@
   [
         {
           "type" : 1,
+          "rows" : 8,
+          "cols" : 8,
           "figure_file": "figure1",
           "start_time" : 0,
           "end_time" : 6,
@@ -15,6 +17,8 @@
         },
         {
           "type" : 3,
+          "rows" : 8,
+          "cols" : 8,
           "figure_file": "figure1",
           "start_time" : 5,
           "end_time" : 9,
@@ -27,6 +31,8 @@
         },
         {
           "type" : 4,
+          "rows" : 8,
+          "cols" : 8,
           "figure_file": "figure1",
           "start_time" : 200,
           "end_time" : 6,
@@ -39,6 +45,8 @@
         },
         {
           "type" : 2,
+          "rows" : 8,
+          "cols" : 8,
           "figure_file": "figure1",
           "start_time" : 6,
           "end_time" : 12,

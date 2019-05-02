@@ -42,6 +42,8 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
     struct json_object *end_pos_y;
     struct json_object *initial_angle;
     struct json_object *end_angle;
+    struct json_object *rows;
+    struct json_object *cols;
 
     json_object_object_get_ex(json_figure, "type", &type);
     json_object_object_get_ex(json_figure, "figure_file", &figure_file_name);
@@ -53,6 +55,8 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
     json_object_object_get_ex(json_figure, "end_pos_y", &end_pos_y);
     json_object_object_get_ex(json_figure, "initial_angle", &initial_angle);
     json_object_object_get_ex(json_figure, "end_angle", &end_angle);
+    json_object_object_get_ex(json_figure, "rows", &rows);
+    json_object_object_get_ex(json_figure, "cols", &cols);
 
     struct figure current_figure;
     current_figure.type = json_object_get_int(type);
@@ -69,6 +73,8 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
     current_figure.end_pos_y = json_object_get_int(end_pos_y);
     current_figure.initial_angle= json_object_get_int(initial_angle);
     current_figure.end_angle = json_object_get_int(end_angle);
+    current_figure.rows = json_object_get_int(rows);
+    current_figure.cols = json_object_get_int(cols);
 
     return current_figure;
 
