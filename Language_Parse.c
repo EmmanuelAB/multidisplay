@@ -1,6 +1,6 @@
 #include "Language_Parse.h"
 
-char* file_name = "example.json";
+char* file_name = "../TestingFiles/example.json";
 
 void read_file(){
     printf("\nReading file\n");
@@ -82,8 +82,9 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
 
 char* parse_figure_file(const char* filename){
     printf("\nReading figure file\n");
-    char* file_path = strcat("../TestingFiles/", (char*)filename);
-    FILE* file = fopen(file_path, "r");
+    char path[30];
+    sprintf(path, "%s%s", "../TestingFiles/", filename);
+    FILE* file = fopen(path, "r");
     static char content[BUFFER_SIZE];
     fread(content, BUFFER_SIZE, 1, file);
     fclose(file);
