@@ -13,6 +13,7 @@ void rotate(char *matrix, int n);
 void figure_list_to_string();
 void copy_matrix(char *dest, const char *orig, int n);
 void print_matrix(const char *matrix, int n);
+void delete_new_line(char *matrix, int n, int m);
 
 int main(){
 
@@ -23,23 +24,17 @@ int main(){
     // Example of printing all the attributes of the figures once they are parsed.
     //figure_list_to_string();
 
-//    int n = 5;
-//    char matrix[5][5] = {
-//            {'-','-','-','-','-'},
-//            {'X','-','-','-','-'},
-//            {'X','-','-','-','-'},
-//            {'X','-','-','-','-'},
-//            {'-','-','-','-','-'},
-//    };
-
     char* matrix = figure_list[0].figure;
+    int rows = figure_list[0].rows;
+    int cols = figure_list[0].cols;
+    delete_new_line(matrix, rows, cols);
     while(1) {
-        print_matrix(matrix, figure_list[0].rows);
+        print_matrix(matrix, rows);
         printf("Enter r to rotate or enter x to finish:");
         char c[2];
         scanf("%s", c);
         if (c[0] != 'x') {
-            rotate(matrix, figure_list[0].rows);
+            rotate(matrix, rows);
             printf("\n");
         } else{
             break;
@@ -89,9 +84,6 @@ void copy_matrix(char *dest, const char *orig, int n){
     }
 }
 
-
-
-
 /*
     Rotates the matrix 90 degrees to clockwise
  */
@@ -112,4 +104,16 @@ void rotate(char *matrix, int n){
             *(matrix+dest_row*n+dest_col) = temp_matrix[i][j];
         }
     }
+}
+
+// Delete '\n' from matrix
+void delete_new_line(char *matrix, int n, int m){
+    char buffer_temp[n*(m-1)];
+    int offset1 = 0, offset2 = 0;
+    for (int i = 0; i < n; ++i) {
+        strncpy((char *) (buffer_temp + offset1), matrix + offset2, m);
+        offset1 += m;
+        offset2 += m+1;
+    }
+    sprintf(matrix, "%s", buffer_temp);
 }

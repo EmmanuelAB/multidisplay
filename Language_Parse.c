@@ -82,7 +82,8 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
 
 char* parse_figure_file(const char* filename){
     printf("\nReading figure file\n");
-    FILE* file = fopen(strcat((char*)filename, ".txt"), "r");
+    char* file_path = strcat("../TestingFiles/", (char*)filename);
+    FILE* file = fopen(file_path, "r");
     static char content[BUFFER_SIZE];
     fread(content, BUFFER_SIZE, 1, file);
     fclose(file);
