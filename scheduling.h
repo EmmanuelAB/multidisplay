@@ -128,12 +128,15 @@ int process_winner(struct process_list *list){
 
     struct process *current = list->first;
 
-    while(suma < winner && current->next != NULL){
+    while(current->next != NULL){
         suma += current->tickets_number;
         current = current->next;
+
+        if(suma > winner){
+            break;
+        }
         i++;
     }
-
     return i; //id del proceso ganador
 }
 
