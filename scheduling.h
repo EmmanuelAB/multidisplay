@@ -154,7 +154,7 @@ void real_time(struct process_list *list){
     struct process *current = list->first;
 
     //lcm -> least common multiple
-    int lcm, time, i, prior , initial_array[2][number_process];
+    int lcm, time, i, priority , initial_array[2][number_process];
 
     //Is the system sheculable?
     if (utilization_test(list)){
@@ -189,13 +189,13 @@ void real_time(struct process_list *list){
         }
 
         //obtengo proceso con mayor prioridad para ejecutarse
-        prior = prior_process(list,lcm, number_process);
+        priority = prior_process(list,lcm, number_process);
 
-        if(prior != -1){//execute task
-            current = search_element(list, prior);
+        if(priority != -1){//execute task
+            current = search_element(list, priority);
             printf("(%d-%d)| %s\n", time,time+1, current->name);
             current->execution_time--;
-            //mover_derecha(process[prior].name);
+            //mover_derecha(process[priority].name);
             //sleep(2);
         }
         else{//no execute task
