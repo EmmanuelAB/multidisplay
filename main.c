@@ -14,6 +14,7 @@
 #define MAX_THREADS_TO_WAKE 100
 
 int counter = 0;
+int var = 0;
 pthread_mutex_t mutex;
 pthread_t threads[2];
 int my_mutex;
@@ -96,6 +97,18 @@ void *thread_func( void *pointer){
     }
 }
 
+void *suma( void *pointer ){
+    int thread_id = *((int*) pointer);
+    for (int i = 0; i < 10; i++) {
+        mylock(&my_mutex, thread_id);
+        //pthread_mutex_lock(&mutex);
+        var++;
+        printf("\nVAR: %d\n", var);
+        //pthread_mutex_unlock(&mutex);
+        myunlock(&my_mutex, thread_id);
+    }
+}
+
 
 int main() {
 
@@ -103,13 +116,14 @@ int main() {
 
     int ids[] = {1,2};
 
-    pthread_create( &threads[1],  NULL, thread_func, &(ids[1]));
-    sleep(1);
-    pthread_create( &threads[0],  NULL, thread_func, &(ids[0]));
+    //pthread_create( &threads[1],  NULL, thread_func, &(ids[1]));
+    //sleep(1);
+    //pthread_create( &threads[0],  NULL, thread_func, &(ids[0]));
 
-
-    pthread_join(threads[0], NULL);
+    pthread_create(&threads[1], NULL, suma, &(ids[0]));
+    pthread_create(&threads[0], NULL, suma, &(ids[1]));
     pthread_join(threads[1], NULL);
+    pthread_join(threads[0], NULL);
 
 
     printf("End main\n");
