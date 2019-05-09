@@ -18,6 +18,8 @@
 // Where context of each thread will be saved
 ucontext_t threads_contexts[NUM_OF_THREADS];
 
+int finished[] = {0, 0};
+
 // Scheduler stuff
 ucontext_t scheduler_context;
 void *scheduler_stack;
@@ -27,19 +29,68 @@ int current_context_index = -1; // JUST TO MAKE IT 0 THE FIRST TIME
 
 
 
-void thread_function(int id){
-    for (int i = 0; i < 1000; ++i) {
-        move(id, 0);
-        printw("%d",i);
-        refresh();
-        usleep(0.01 * TO_MICROSECONDS);
-    }
-    printf("thread finished\n");
+
+
+
+void exit_func(){
+    printf("AT EXIT\n");
+    sleep(1);
+    exit(0);
 }
 
 
 
+
+
+ucontext_t *determine_next_context(){
+    ucontext_t *next = NULL;
+    if(finished[0]+finished[1] == 2)
+        return next;
+    do{
+        // Determine the next
+        current_context_index = (current_context_index + 1) % NUM_OF_THREADS;
+
+
+    }while(finished[current_context_index]);
+    next = &threads_contexts[current_context_index];
+    return next;
+}
+
+
+
+void schedule_next_thread(){
+    // Determine the next thread context to be loaded
+    ucontext_t *context_to_run = determine_next_context();
+
+    if(context_to_run == NULL) exit(0);
+
+    // Set the alarm
+    alarm(ALARM_FREQUENCY);
+
+    // Load the context to start running the thread
+    setcontext(context_to_run);
+}
+
+
+void thread_function(int id){
+    for (int i = 0; i < 200; ++i) {
+        printf("[thread %d] %d\n",id, i);
+        usleep(0.005 * TO_MICROSECONDS);
+    }
+    printf("thread finished\n");
+    finished[id] = 1;
+    schedule_next_thread();
+}
+
 void create_threads_contexts(ucontext_t contexts[]){
+    ucontext_t end_context;
+    getcontext( &end_context );
+    end_context.uc_stack.ss_sp = malloc(STACK_SIZE);
+    end_context.uc_stack.ss_size = STACK_SIZE;
+
+    makecontext( &end_context, exit_func, 0, 0 );
+
+
     for(int i=0 ; i < NUM_OF_THREADS ; i++){
         ucontext_t *current_pointer = &contexts[i];
 
@@ -58,35 +109,11 @@ void create_threads_contexts(ucontext_t contexts[]){
         // Modify the context to execute threadfunction(i) when loaded
         makecontext(current_pointer, thread_function, 1, i);
 
+        // Link to the end
+        current_pointer->uc_link = &end_context;
+
     }
 }
-
-
-
-ucontext_t *determine_next_context(){
-    // Determine the next
-    int next_index = (current_context_index + 1) % NUM_OF_THREADS;
-
-    // Set the next as the current
-    current_context_index = next_index;
-
-    return &threads_contexts[next_index];
-
-}
-
-
-
-void schedule_next_thread(){
-    // Determine the next thread context to be loaded
-    ucontext_t *context_to_run = determine_next_context();
-
-    // Set the alarm
-    alarm(ALARM_FREQUENCY);
-
-    // Load the context to start running the thread
-    setcontext(context_to_run);
-}
-
 
 
 void handle_alarm(int signal_number){
@@ -135,8 +162,6 @@ void initialize_scheduler(){
 
 
 int main() {
-    // Initialize ncurses screen
-    initscr();
 
     // Establish what to do when the alarm activates
     setup_alarm_handler();
