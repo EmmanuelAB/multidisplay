@@ -8,7 +8,7 @@
 #include "my_thread.h"
 
 
-int my_thread_create( void *function ) {
+int my_thread_create( void *function, int param ) {
 
 
 
@@ -42,7 +42,7 @@ int my_thread_create( void *function ) {
     ucontext_t *new_thread_context = new_tcb->context;
     getcontext(new_thread_context);
     ucontext_init_stack(new_thread_context);
-    makecontext(new_thread_context, function, 0);
+    makecontext(new_thread_context, function, 1, param);
 
     // insert the thread context in the scheduler's list
     list_add_element(ready_threads, new_tcb);
@@ -91,14 +91,8 @@ void schedule_next_thread(){
 
 
 void handle_alarm(int signal_number){
-//    printf("thread was interrupted\n");
-    printf("Interrupt! || [%d] threads running\n", ready_threads->size);
+//    printf("Interrupt! || [%d] threads running\n", ready_threads->size);
 
-    // Create a context to run the scheduler
-//    getcontext(&scheduler_context);
-//    (&scheduler_context)->uc_stack.ss_sp =  scheduler_stack;
-//    (&scheduler_context)->uc_stack.ss_flags = 0; // use no flags
-//    (&scheduler_context)->uc_stack.ss_size = STACK_SIZE;
     makecontext(&scheduler_context, schedule_next_thread, 0);
 
 

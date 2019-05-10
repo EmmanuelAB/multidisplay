@@ -38,7 +38,7 @@ static ucontext_t *current_context; // the running context, used when when the a
  * Returns the id of the created thread
  * After calling, the caller becomes also a thread
 */
-int my_thread_create( void *function );
+int my_thread_create( void *function, int param);
 
 
 

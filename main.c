@@ -1,49 +1,36 @@
 #include <unistd.h>
+#include <ncurses.h>
 #include "my_thread.h"
 
 
-void function2(){
+void function(int row){
     int n = 1;
     while(1){
-//        printf("From thread 2 [%d]\n", n++);
-        printf("From thread 2\n");
+        move(row,0);
+        printw("%d", n++);
+        refresh();
         usleep(0.25 * TO_MICROSECONDS);
     }
 }
 
-void function(){
-    int n = 1;
-    while(1){
-//        printf("From thread 1 [%d]\n", n++);
-        printf("From thread 1\n");
-        usleep(0.25 * TO_MICROSECONDS);
-    }
-
-}
-
-void function3(){
-    int n = 1;
-    while(1){
-//        printf("From thread 1 [%d]\n", n++);
-        printf("From thread 3\n");
-        usleep(0.25 * TO_MICROSECONDS);
-    }
-}
 
 int main() {
 
+    initscr();
+
     my_thread_init();
 
-    my_thread_create( function );
+    my_thread_create( function, 1);
+    my_thread_create( function, 2);
+    my_thread_create( function, 3);
 
-    my_thread_create( function2 );
-
-    my_thread_create( function3 );
 
     while(1){
-        printf("Main doing nothing\n");
+//        printf("Main doing nothing\n");
         usleep(0.25*TO_MICROSECONDS);
     }
+
+    endwin();
     
     return 0;
 
