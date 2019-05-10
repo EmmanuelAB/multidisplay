@@ -10,6 +10,31 @@
 
 int my_thread_create( void *function ) {
 
+
+
+
+
+    // if the scheduler hasn't been initialized yet must
+    //
+    if(! scheduler_inialized){
+        // save this context (the caller)
+        TCB *caller_tcb = malloc(sizeof(TCB));
+        caller_tcb->context = malloc(sizeof(ucontext_t));
+
+        // insert the caller context in the list is remains as another thread
+        list_add_element(ready_threads, caller_tcb);
+
+        // prepare the scheduler context to run
+        makecontext(&scheduler_context, schedule_next_thread, 0);
+
+        // avoid entering this if again
+        scheduler_inialized = 1;
+
+        // change to scheduler context to start multiplexing the threads
+        swapcontext(caller_tcb->context , &scheduler_context);
+
+    }
+
     // create a context where the new thread will run
     TCB *new_tcb = malloc(sizeof(TCB));
     new_tcb->id = serial_id++;
@@ -22,19 +47,6 @@ int my_thread_create( void *function ) {
     // insert the thread context in the scheduler's list
     list_add_element(ready_threads, new_tcb);
 
-    // save this context (the caller)
-    TCB *caller_tcb = malloc(sizeof(TCB));
-    caller_tcb->context = malloc(sizeof(ucontext_t));
-
-
-    // insert the caller context in the list is remains as another thread
-    list_add_element(ready_threads, caller_tcb);
-
-    // TODO: this should be done only the first time when the scheduler is not running
-    // prepare the scheduler context to run
-    makecontext(&scheduler_context, schedule_next_thread, 0);
-    // change to scheduler context to start multiplexing the threads
-    swapcontext( caller_tcb->context, &scheduler_context);
     return new_tcb->id;
 }
 
@@ -80,7 +92,8 @@ void schedule_next_thread(){
 
 void handle_alarm(int signal_number){
 //    printf("thread was interrupted\n");
-    printf("Interrupt!\n");
+    printf("Interrupt! || [%d] threads running\n", ready_threads->size);
+
     // Create a context to run the scheduler
 //    getcontext(&scheduler_context);
 //    (&scheduler_context)->uc_stack.ss_sp =  scheduler_stack;
