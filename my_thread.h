@@ -66,6 +66,20 @@ void setup_alarm_handler();
  */
 void schedule_next_thread();
 
+/*
+ *
+ */
+void my_thread_end();
+
+/*
+ *
+ */
+void my_thread_yield();
+
+/*
+ *
+ */
+void my_thread_join();
 
 /*
  * Based on circular shifting
