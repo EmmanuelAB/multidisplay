@@ -22,7 +22,7 @@ int my_thread_create( void *function ) {
         caller_tcb->context = malloc(sizeof(ucontext_t));
 
         // insert the caller context in the list is remains as another thread
-        list_add_element(ready_threads, caller_tcb);
+        list_add_element(ready_threads_list, caller_tcb);
 
         // prepare the scheduler context to run
         makecontext(&scheduler_context, schedule_next_thread, 0);
@@ -45,7 +45,7 @@ int my_thread_create( void *function ) {
     makecontext(new_thread_context, function, 0);
 
     // insert the thread context in the scheduler's list
-    list_add_element(ready_threads, new_tcb);
+    list_add_element(ready_threads_list, new_tcb);
 
     return new_tcb->id;
 }
@@ -64,12 +64,12 @@ static void ucontext_init_stack(ucontext_t *context){
 
 ucontext_t *determine_next_context(){
     // Determine the next
-    int next_index = (current_context_index + 1) % ready_threads->size;
+    int next_index = (current_context_index + 1) % ready_threads_list->size;
 
     // Set the next as the current
     current_context_index = next_index;
 
-    return list_get_element_at(ready_threads, current_context_index)->context;
+    return list_get_element_at(ready_threads_list, current_context_index)->context;
 
 }
 
@@ -92,7 +92,7 @@ void schedule_next_thread(){
 
 void handle_alarm(int signal_number){
 //    printf("thread was interrupted\n");
-    printf("Interrupt! || [%d] threads running\n", ready_threads->size);
+    printf("Interrupt! || [%d] threads running\n", ready_threads_list->size);
 
     // Create a context to run the scheduler
 //    getcontext(&scheduler_context);
@@ -182,7 +182,7 @@ void my_thread_init(){
     setup_alarm_handler();
 
     // initialize the list of ready threads
-    ready_threads_list = list_create();
+    ready_threads_list_list = list_create();
     blocked_threads_list = list_create();
 
     // initialize the scheduler context
