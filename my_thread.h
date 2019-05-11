@@ -9,8 +9,13 @@
 #include "list.h"
 
 
-#define ALARM_FREQUENCY 1
+#define ALARM_FREQUENCY 0.0001
 #define TO_MICROSECONDS 1000000
+
+#define MUTEX_LOCKED_VALUE 1
+#define MUTEX_UNLOCKED_VALUE 0
+#define MUTEX_INIT_LOCK_VALUE MUTEX_UNLOCKED_VALUE
+#define MUTEX_MAX_THREADS_TO_WAKE 100
 
 #define KB 1000
 #define STACK_SIZE 1000 * KB // the stack used by the thread's contexts
@@ -71,5 +76,40 @@ void schedule_next_thread();
  * Based on circular shifting
  */
 ucontext_t *determine_next_context();
+
+
+
+/*
+ * Tries to get the lock, if it's free return immediately
+ * If it's closed then block until it's freed
+ */
+int my_thread_trylock( int *lock);
+
+
+
+
+/*
+ * Sets the value at -lock- to free and wakes other waiting threads
+ */
+void my_thread_unlock(int *lock);
+
+
+/*
+ * Handles the alarm event when it occurs (schedule next thread to run)
+ */
+void handle_alarm(int signal_number);
+
+
+
+/*
+ *
+ */
+void my_thread_lock(int *lock);
+
+
+/*
+ * Initializes the lock as unlocked
+ */
+void my_thread_mutex_init(int *lock);
 
 #endif //MULTIDISPLAY_MY_THREAD_H

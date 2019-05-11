@@ -5,21 +5,23 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include <linux/futex.h>
+#include <syscall.h>
 #include "my_thread.h"
+#include <stdatomic.h>
+
+
 
 
 int my_thread_create( void *function, int param ) {
 
-
-
-
-
     // if the scheduler hasn't been initialized yet must
-    //
+    // create TCB so the caller can be scheduled like any other threads
     if(! scheduler_inialized){
         // save this context (the caller)
         TCB *caller_tcb = malloc(sizeof(TCB));
         caller_tcb->context = malloc(sizeof(ucontext_t));
+        caller_tcb->id == serial_id++;
 
         // insert the caller context in the list is remains as another thread
         list_add_element(ready_threads, caller_tcb);
@@ -52,6 +54,44 @@ int my_thread_create( void *function, int param ) {
 
 
 
+int my_thread_trylock( int *mutex){
+
+
+}
+
+
+
+void my_thread_lock(int *lock){
+
+    int expected = MUTEX_UNLOCKED_VALUE, new_value = MUTEX_LOCKED_VALUE;
+
+    // if the value at lock is == expected => lock is updated (expected remains untouched)
+    // if not => the value at lock is saved to expected
+    atomic_compare_exchange_strong(lock, &expected, new_value);
+
+    // if couldn't get the lock wait until it's released
+    if (expected == MUTEX_LOCKED_VALUE){
+        printf("nope\n");
+        //sleep until the lock is released
+        syscall(SYS_futex, lock, FUTEX_WAIT, MUTEX_LOCKED_VALUE, NULL, NULL, NULL);
+        printf("after call\n");
+    }
+    else{ printf("mine\n"); }
+
+}
+
+
+
+void my_thread_unlock(int *lock){
+    // reset the lock's value
+    *lock = MUTEX_UNLOCKED_VALUE;
+
+    // wake waiting threads, if any
+    int result = syscall(SYS_futex, lock, FUTEX_WAKE, MUTEX_MAX_THREADS_TO_WAKE, NULL, NULL, NULL);
+
+}
+
+
 
 static void ucontext_init_stack(ucontext_t *context){
 
@@ -60,6 +100,7 @@ static void ucontext_init_stack(ucontext_t *context){
     context->uc_stack.ss_flags = 0; // use no flags
 
 }
+
 
 
 ucontext_t *determine_next_context(){
@@ -74,6 +115,7 @@ ucontext_t *determine_next_context(){
 }
 
 
+
 void schedule_next_thread(){
     // Determine the next thread context to be loaded
     ucontext_t *context_to_run = determine_next_context();
@@ -83,14 +125,16 @@ void schedule_next_thread(){
     current_context = context_to_run;
 
     // Set the alarm
-    alarm(ALARM_FREQUENCY);
+    ualarm(ALARM_FREQUENCY*TO_MICROSECONDS, 0);
 
     // Load the context to start running the thread
     setcontext(context_to_run);
 }
 
 
+
 void handle_alarm(int signal_number){
+    printf("i\n");
 //    printf("Interrupt! || [%d] threads running\n", ready_threads->size);
 
     makecontext(&scheduler_context, schedule_next_thread, 0);
@@ -125,6 +169,7 @@ void setup_alarm_handler() {
 }
 
 
+
 void my_thread_init(){
 
     // set the alarm handler
@@ -141,3 +186,8 @@ void my_thread_init(){
 
 }
 
+
+
+void my_thread_mutex_init(int *lock){
+    *lock = MUTEX_INIT_LOCK_VALUE;
+}
