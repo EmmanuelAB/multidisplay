@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include "tcb.h"
 
+#define LIST_ELEMENT_NOT_FOUND -1
+
 #define TYPE TCB*
 
 typedef struct node{
@@ -34,5 +36,7 @@ int list_get_index_of(list *a_list, TYPE value_looking_for);
 int list_remove_element_at(list *a_list, int index);
 
 TYPE list_get_element_at(list *a_list, int index);
+
+int list_get_index_of_element_with_id(list *a_list, int id);
 
 #endif //MULTIDISPLAY_LIST_H

@@ -16,6 +16,9 @@
 #define MUTEX_UNLOCKED_VALUE 0
 #define MUTEX_INIT_LOCK_VALUE MUTEX_UNLOCKED_VALUE
 #define MUTEX_MAX_THREADS_TO_WAKE 100
+#define MUTEX_ACQUIRED MUTEX_UNLOCKED_VALUE
+#define MUTEX_DENIED MUTEX_LOCKED_VALUE
+
 
 #define KB 1000
 #define STACK_SIZE 1000 * KB // the stack used by the thread's contexts
@@ -31,6 +34,10 @@ static int scheduler_inialized = 0;
 static ucontext_t scheduler_context; // where the context will decide who's next running
 
 static ucontext_t *current_context; // the running context, used when when the alarm occurs
+
+static ucontext_t *end_context;
+
+static TCB *current_tcb;
 
 
 
@@ -83,15 +90,23 @@ ucontext_t *determine_next_context();
  * Tries to get the lock, if it's free return immediately
  * If it's closed then block until it's freed
  */
-int my_thread_trylock( int *lock);
+void my_mutex_lock( int *lock);
 
+
+
+
+/*
+ * Tries to get the lock, if it's free return immediately
+ * If it's closed then return an error status
+ */
+int my_mutex_trylock(int *lock);
 
 
 
 /*
  * Sets the value at -lock- to free and wakes other waiting threads
  */
-void my_thread_unlock(int *lock);
+void my_mutex_unlock(int *lock);
 
 
 /*
@@ -107,9 +122,20 @@ void handle_alarm(int signal_number);
 void my_thread_lock(int *lock);
 
 
+
 /*
  * Initializes the lock as unlocked
  */
 void my_thread_mutex_init(int *lock);
+
+
+
+
+/*
+ * This function will run when a thread finishes
+ * Must remove the element from the list so it cannot be scheduled again
+ * Receives the id of the thread that has finished
+ */
+void end_function(int thread_id);
 
 #endif //MULTIDISPLAY_MY_THREAD_H

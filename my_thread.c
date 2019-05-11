@@ -43,6 +43,7 @@ int my_thread_create( void *function, int param ) {
     new_tcb->context = malloc( sizeof(ucontext_t) );
     ucontext_t *new_thread_context = new_tcb->context;
     getcontext(new_thread_context);
+    new_tcb->context->uc_link = end_context; // make the link to the finishing context
     ucontext_init_stack(new_thread_context);
     makecontext(new_thread_context, function, 1, param);
 
@@ -54,14 +55,26 @@ int my_thread_create( void *function, int param ) {
 
 
 
-int my_thread_trylock( int *mutex){
+int my_mutex_trylock( int *lock){
+    int return_value;
+    int expected = MUTEX_UNLOCKED_VALUE, new_value = MUTEX_LOCKED_VALUE;
 
+    // if the value at lock is == expected => lock is updated (expected remains untouched)
+    // if not => the value at lock is saved to expected
+    atomic_compare_exchange_strong(lock, &expected, new_value);
 
+    // if couldn't get the lock wait until it's released
+    if (expected == MUTEX_LOCKED_VALUE)
+        return_value = MUTEX_DENIED;
+    else
+        return_value = MUTEX_ACQUIRED;
+
+    return return_value;
 }
 
 
 
-void my_thread_lock(int *lock){
+void my_mutex_lock(int *lock){
 
     int expected = MUTEX_UNLOCKED_VALUE, new_value = MUTEX_LOCKED_VALUE;
 
@@ -82,7 +95,7 @@ void my_thread_lock(int *lock){
 
 
 
-void my_thread_unlock(int *lock){
+void my_mutex_unlock(int *lock){
     // reset the lock's value
     *lock = MUTEX_UNLOCKED_VALUE;
 
@@ -134,7 +147,7 @@ void schedule_next_thread(){
 
 
 void handle_alarm(int signal_number){
-    printf("i\n");
+    printf("alarm!\n");
 //    printf("Interrupt! || [%d] threads running\n", ready_threads->size);
 
     makecontext(&scheduler_context, schedule_next_thread, 0);
@@ -184,10 +197,37 @@ void my_thread_init(){
 
     ucontext_init_stack(&scheduler_context);
 
+    //initialize the context that will be loaded when every thread finishes
+    end_context = malloc(sizeof(ucontext_t));
+    ucontext_init_stack(end_context);
+    getcontext(end_context);
+    makecontext(end_context, end_function, 0);
+
+
 }
 
 
 
 void my_thread_mutex_init(int *lock){
     *lock = MUTEX_INIT_LOCK_VALUE;
+}
+
+
+void end_function(int thread_id){
+//    printf("END FUNC\n"); return;
+
+    int id = list_get_index_of(cu)
+
+    // Remove the element from the TCB
+    int index_to_delete = list_get_index_of_element_with_id(ready_threads, id);
+    if(index_to_delete != LIST_ELEMENT_NOT_FOUND) {
+        list_remove_element_at(index_to_delete, index_to_delete);
+        printf("Thread deleted from list\n");
+    } else{
+        printf("Failed to delete TCB from list\n");
+    }
+
+    // Call the scheduler to make it run the next thread
+//    kill(getpid(), SIGALRM); //TODO CHECK if this is the way to do it
+    handle_alarm(SIGALRM);
 }

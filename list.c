@@ -107,3 +107,16 @@ TYPE list_get_element_at(list *a_list, int index){
     }
     return return_value;
 }
+
+int list_get_index_of_element_with_id(list *a_list, int id){
+    int return_index = -1;
+    int current_index = 0;
+    node *current = a_list->first;
+    while (current != NULL && return_index == -1) {
+        if(current->value->id == id)
+            return_index = current_index;
+        current = current->next;
+        current_index++;
+    }
+    return return_index;
+}
