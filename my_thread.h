@@ -49,6 +49,9 @@ int my_thread_create( void *function );
 */
 static void ucontext_init_stack(ucontext_t *context);
 
+// This function checks in the waiting list If some thread is waiting for thread1
+// and if so returns its index otherwise returns 0
+int get_thread_index_waiting_for(TCB* thread1);
 
 
 /*

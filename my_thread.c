@@ -119,6 +119,19 @@ void handle_alarm(int signal_number){
 
 }
 
+int get_thread_index_waiting_for(TCB* thread1){
+    node* iterator = blocked_threads_list->first;
+    int index = 0;
+    while(iterator != NULL){
+        if(iterator->value->waiting_thread_id== thread1->id){
+            return index;
+        }
+        iterator = iterator->next;
+        index++;
+    }
+    return FALSE;
+}
+
 void my_thread_end(){
 
     // remove context from ready list
