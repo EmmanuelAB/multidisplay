@@ -119,7 +119,39 @@ void handle_alarm(int signal_number){
 
 }
 
+void my_thread_end(){
 
+    // remove context from ready list
+    list_remove_element_at(ready_threads_list, current_context_index);
+
+    // if other thread is waiting for this one push it into the ready list
+    int waiting_thread_index = get_thread_index_waiting_for((list_get_element_at(ready_threads_list, current_context_index)));
+    if(waiting_thread_index){
+        TCB* waiting_thread_TCB = list_remove_element_at(blocked_threads_list, waiting_thread_index);
+        list_add_element(ready_threads_list, waiting_thread_TCB);
+    }
+
+    // swap to scheduler context
+    setcontext(&scheduler_context);
+}
+
+
+void my_thread_join(int thread_id){
+    // set waiting id attribute to caller thread
+    list_get_element_at(ready_threads_list, current_context_index)->waiting_thread_id = thread_id;
+    // remove caller thread from scheduler ready list
+    TCB* caller_threadTCB = list_remove_element_at(ready_threads_list, current_context_index);
+    // push caller thread to waiting list
+    list_add_element(blocked_threads_list, caller_threadTCB);
+    // swap to scheduler context
+    setcontext(&scheduler_context);
+}
+
+void my_thread_yield(){
+    // raise the signal to activate the handle alarm and swap to
+    // scheduler context after saving current
+    kill(getpid(), SIGALRM);
+}
 
 void setup_alarm_handler() {
     struct sigaction action;
@@ -137,7 +169,8 @@ void my_thread_init(){
     setup_alarm_handler();
 
     // initialize the list of ready threads
-    ready_threads = list_create();
+    ready_threads_list = list_create();
+    blocked_threads_list = list_create();
 
     // initialize the scheduler context
 //    scheduler_context = malloc(STACK_SIZE);

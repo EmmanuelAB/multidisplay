@@ -11,6 +11,9 @@ typedef struct TCB {
     int id;
     int scheduler;
     int state;
+    int waiting_thread_id;
+    int blocked;
+    int ready;
     ucontext_t *context;
 } TCB;
 

@@ -19,7 +19,9 @@ static int serial_id = 0; // a consecutive serial to track the current track id 
 
 static int current_context_index = -1; // just to make it work the first time
 
-static list *ready_threads;
+static list *ready_threads_list;
+
+static list *blocked_threads_list;
 
 static int scheduler_inialized = 0;
 
