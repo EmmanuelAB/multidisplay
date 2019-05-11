@@ -43,15 +43,49 @@ void get_lock(int n){
         printf("[%d] I couldn't get the lock\n", n);
     }
     printf("[%d] ended\n", n);
+//    sleep(1);
+
+}
+
+void use_lock(int n){
+    printf("[%d] started\n", n);
+    printf("[%d] trying to lock\n", n);
+
+    my_mutex_lock(&mutex);
+
+    printf("[%d] got the lock\n", n);
     sleep(1);
+
+    my_mutex_unlock(&mutex);
 
 }
 
 
+void test_lock(){
+    my_thread_init();
+
+    my_mutex_init(&mutex);
+
+    my_thread_create(use_lock, 1);
+    printf("[%d] launched\n", 1);
+
+    my_thread_create(use_lock, 2);
+    printf("[%d] launched\n", 2);
+
+    int n=1000;
+    while(n--){
+        printf("main sleeping\n");
+        usleep(0.001*TO_MICROSECONDS);
+    }
+//    printf("main sleeping\n");
+//    sleep(6);
+//    printf("main finished\n");
+}
+
 
 void use_pthread(){
     pthread_mutex_init(&mut, NULL);
-    my_thread_mutex_init(&mutex);
+    my_mutex_init(&mutex);
 
     pthread_create( &threads[1],  NULL, function, 1);
     pthread_create( &threads[1],  NULL, function, 2);
@@ -65,7 +99,7 @@ void use_my(){
     my_thread_init();
 
 
-    my_thread_mutex_init(&mutex);
+    my_mutex_init(&mutex);
 
 
     my_thread_create( function, 1);
@@ -86,10 +120,14 @@ void test_trylock(){
     my_thread_create(get_lock, 2);
     printf("[%d] launched\n", 2);
 
-    while(1){
-        printf("main sleeping\n");
-        usleep(0.001*TO_MICROSECONDS);
-    }
+//    while(1){
+//        printf("main sleeping\n");
+//        usleep(0.001*TO_MICROSECONDS);
+//    }
+    printf("main sleeping\n");
+    while(1);
+    printf("main finished\n");
+
 }
 
 
@@ -97,5 +135,7 @@ void test_trylock(){
 int main() {
 //    use_pthread();
 //    use_my();
-    test_trylock();
+//    test_trylock();
+    test_lock();
+
 }

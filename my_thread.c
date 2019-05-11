@@ -136,6 +136,11 @@ void schedule_next_thread(){
 
     //update the current context
     current_context = context_to_run;
+    /*TODO: check if we can remove this variable and use only current_tcb instead.
+     * I think it would be just to replace usages of current_context to current_tcb->context */
+
+    //update the current TCB
+    current_tcb = list_get_element_at(ready_threads, current_context_index);
 
     // Set the alarm
     ualarm(ALARM_FREQUENCY*TO_MICROSECONDS, 0);
@@ -163,7 +168,6 @@ void handle_alarm(int signal_number){
        be the next instruction after the point its context was saved. Therefore doing it this way, when the
        thread is resumed, it returns back to its execution immediately
     */
-    ucontext_t *curr = current_context;
 
     swapcontext(current_context, &scheduler_context);
 
@@ -208,7 +212,7 @@ void my_thread_init(){
 
 
 
-void my_thread_mutex_init(int *lock){
+void my_mutex_init(int *lock){
     *lock = MUTEX_INIT_LOCK_VALUE;
 }
 
@@ -216,12 +220,10 @@ void my_thread_mutex_init(int *lock){
 void end_function(int thread_id){
 //    printf("END FUNC\n"); return;
 
-    int id = list_get_index_of(cu)
-
     // Remove the element from the TCB
-    int index_to_delete = list_get_index_of_element_with_id(ready_threads, id);
+    int index_to_delete = current_context_index;
     if(index_to_delete != LIST_ELEMENT_NOT_FOUND) {
-        list_remove_element_at(index_to_delete, index_to_delete);
+        list_remove_element_at(ready_threads, index_to_delete);
         printf("Thread deleted from list\n");
     } else{
         printf("Failed to delete TCB from list\n");

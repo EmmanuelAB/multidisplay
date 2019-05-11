@@ -126,7 +126,7 @@ void my_thread_lock(int *lock);
 /*
  * Initializes the lock as unlocked
  */
-void my_thread_mutex_init(int *lock);
+void my_mutex_init(int *lock);
 
 
 
