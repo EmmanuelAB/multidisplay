@@ -4,12 +4,11 @@
 
 #include "list.h"
 
-list *list_create(const char *format){
+list *list_create(){
     list *a_new_list = malloc(sizeof(list));
     a_new_list->first = NULL;
     a_new_list->last = NULL;
     a_new_list->size = 0;
-    a_new_list->format = format;
     return a_new_list;
 }
 
@@ -32,6 +31,10 @@ void list_add_element(list *a_list, TYPE element){
 
     // update list size
     a_list->size++;
+
+    printf("\nIn adding element\n");
+    printf("\nElement added id %d\n", a_list->last->value->id);
+    list_print(a_list);
 }
 
 
@@ -40,7 +43,7 @@ void list_print(list *a_list){
     printf("[");
     while(current != NULL){
         // print current element
-        printf(a_list->format, current->value);
+        printf("%d", current->value->id);
 
         if (current->next != NULL){
             // there is elements left
@@ -54,23 +57,23 @@ void list_print(list *a_list){
 }
 
 // return 0 if found and deleted or -1 if no found
-int list_remove_element_at(list *a_list, int index){
-    int return_value = -1;
+TYPE list_remove_element_at(list *a_list, int index){
     int current_index = 0;
     int element_deleted = 0;
+    TYPE return_value = NULL;
     node *current = a_list->first;
     node *prior_node = current;
     while (current != NULL && ! element_deleted) {
         if(current_index == index){
             // special_case
+            return_value = current->value;
             if(index == 0)
                 a_list->first = current->next;
             else
                 prior_node->next = current->next;
             a_list->size--;
             element_deleted = 1;
-            return_value = 0;
-            free(current);
+            //free(current);
 
         }else{
             prior_node = current;

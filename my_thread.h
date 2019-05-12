@@ -11,6 +11,8 @@
 
 #define ALARM_FREQUENCY 1
 #define TO_MICROSECONDS 1000000
+#define FALSE -1
+#define TRUE 1
 
 #define KB 1000
 #define STACK_SIZE 1000 * KB // the stack used by the thread's contexts
@@ -19,7 +21,7 @@ static int serial_id = 0; // a consecutive serial to track the current track id 
 
 static int current_context_index = -1; // just to make it work the first time
 
-static list *ready_threads_list;
+list *ready_threads_list;
 
 static list *blocked_threads_list;
 
@@ -84,7 +86,7 @@ void my_thread_yield();
 /*
  *
  */
-void my_thread_join();
+void my_thread_join(int thread_id);
 
 /*
  * Based on circular shifting
