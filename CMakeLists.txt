@@ -12,6 +12,7 @@ add_executable(server
         utils/error_handling.c
         animation/server.c
         animation/server.h
+        parse_json/parse_json.c
         )
 
 
@@ -25,5 +26,5 @@ add_executable(client
         utils/error_handling.c
         )
 
-target_link_libraries(server ncurses json-c)
+target_link_libraries(server ncurses json-c m)
 target_link_libraries(client ncurses json-c)

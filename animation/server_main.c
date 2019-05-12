@@ -4,6 +4,8 @@
 #include <ncurses.h>
 #include "server.h"
 #include "../my_thread/my_thread.h"
+#include "../parse_json/parse_json.h"
+#include <math.h>
 
 #define SYMBOL 'X'
 
@@ -14,6 +16,11 @@ int socket_fd; // the socket descriptor of the server
 area canvas_dimension;
 
 char *canvas;
+
+typedef struct fpoint{
+    float x;
+    float y;
+} fpoint;
 
 
 void paste_canvas(){
@@ -60,76 +67,52 @@ void monitor_updater(int param){//not used
 
 int maina() {
 
-    // start the server
-    socket_fd = start_server();
-    printf("Server running\n");
-
-    // wait clients
-    wait_connections(socket_fd, clients_sockets);
-    printf("Server full\n");
-
-    // get desired size
-    ask_terminal_size(&canvas_dimension);
-
-    // send the size to all clients
-    spread_size(canvas_dimension, clients_sockets, MAX_CLIENTS);
-
-
-    // clear the canvas to start blank
-    canvas  = malloc(canvas_dimension.height * canvas_dimension.width);
-    clean_canvas(canvas, canvas_dimension);
-
-    // Launch threads moving 1 char each one
-
-    for (int i = 0; i < 2; ++i) {
-        my_thread_create(animate_char, ROUNDROBIN, i);
-    }
-
-    // Launch a thread that sends update to the monitors
-    my_thread_create(monitor_updater, 0, ROUNDROBIN);
-
-
-    //TEMP
-    while(1);
-
-    // Send "END" message to the monitors
-    char end = 0;
-    for (int i = 0; i < MAX_CLIENTS; ++i) {
-        send(clients_sockets[i],&end,1,NO_FLAGS);
-        close(clients_sockets[i]);
-    }
 
 }
 
 
+void calc_func(fpoint a, fpoint b, float *m, float *be){
+    *m = (b.y - a.y) / (b.x - a.x);
+    *be = a.y - (*m) * a.x;
+}
+
+float eval(float m, float x, float b){ return m*x+b;}
+
 // testing main
 int main(){
-
-    // init library
-    my_thread_init();
-
-    // get desired size
-    ask_terminal_size(&canvas_dimension);
-
     initscr();
 
-    // clear the canvas to start blank
+    getmaxyx(stdscr, canvas_dimension.height, canvas_dimension.width);
+
     canvas  = malloc(canvas_dimension.height * canvas_dimension.width);
     clean_canvas(canvas, canvas_dimension);
+    paste_canvas();
+
+    // for short, to test
+    int w = canvas_dimension.width, h = canvas_dimension.height;
+
+    fpoint a = {w/3, 2*h/3};
+
+    fpoint b = {2*w/3, h/3};
 
 
-    for (int i = 0; i < 2; ++i) {
-        my_thread_create(animate_char, i, ROUNDROBIN);
+    b.y *= -1; // invert to negative
+    a.y *= -1; // to calculate the linear function criteria
+
+    float m, be;
+    calc_func(a,b,&m,&be);
+
+    int y;
+    for (int x = a.x; x < b.x; ++x) {
+
+        y = (int) round((double)eval(m, x, be));
+        move( -1*y, x); //remove the negative
+        printw("%c",'X');
     }
 
-    // Launch a thread that sends update to the monitors
-//    my_thread_create(monitor_updater, 0, ROUNDROBIN);
+    refresh();
 
-
-    //TEMP
-    int n=100;
-    while(n--){usleep(0.01*TO_MICROSECONDS);}
-
+    getchar();
     endwin();
 
 }
