@@ -6,8 +6,10 @@
 #define MULTIDISPLAY_SOCKET_UTILS_H
 
 #include <arpa/inet.h>
-#include "error_handling.h"
+#include "../utils/error_handling.h"
 #include <unistd.h>
+
+#define NO_FLAGS 0 // this is used as the last parameter to send recv functions, for better readability
 
 
 /*
