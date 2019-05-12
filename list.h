@@ -39,4 +39,6 @@ TYPE list_get_element_at(list *a_list, int index);
 
 int list_get_index_of_element_with_id(list *a_list, int id);
 
+void sort_max_min(list *a_list);
+
 #endif //MULTIDISPLAY_LIST_H

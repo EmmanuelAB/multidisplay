@@ -9,6 +9,11 @@ int counter = 0;
 pthread_t threads[2];
 
 
+void test_function(){
+    while(1){
+        usleep(0.25 * TO_MICROSECONDS);
+    }
+}
 
 void function(int row) {
     int n = 1;
@@ -133,9 +138,19 @@ void test_trylock(){
 
 
 int main() {
+    srand(time(NULL));
 //    use_pthread();
 //    use_my();
 //    test_trylock();
-    test_lock();
+//    test_lock();
 
+    my_thread_init();
+
+    my_thread_create( test_function , ROUNDROBIN);
+
+    while(1){
+        //printf("Main doing nothing\n");
+        usleep(0.25*TO_MICROSECONDS);
+
+    }
 }

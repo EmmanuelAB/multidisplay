@@ -9,8 +9,10 @@
 
 typedef struct TCB {
     int id;
+    char *name;
     int scheduler;
     int state;
+    int tickets;
     ucontext_t *context;
 } TCB;
 

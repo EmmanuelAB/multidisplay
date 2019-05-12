@@ -13,7 +13,10 @@
 
 
 
-int my_thread_create( void *function, int param ) {
+int my_thread_create( void *function, int scheduler ) {
+    //for testing
+    ready_threads_round_robin->format = "%s";
+    ready_threads_lottery->format = "%s";
 
     // if the scheduler hasn't been initialized yet must
     // create TCB so the caller can be scheduled like any other threads
@@ -21,10 +24,19 @@ int my_thread_create( void *function, int param ) {
         // save this context (the caller)
         TCB *caller_tcb = malloc(sizeof(TCB));
         caller_tcb->context = malloc(sizeof(ucontext_t));
-        caller_tcb->id == serial_id++;
+        caller_tcb->id = serial_id++;
+        caller_tcb->name = "Main";
 
-        // insert the caller context in the list is remains as another thread
-        list_add_element(ready_threads, caller_tcb);
+        //if scheduler is lottery, give tickets
+        if(scheduler == LOTTERY){
+            caller_tcb->tickets = 5;
+            // insert the caller context in the list is remains as another thread
+            list_add_element(ready_threads_lottery, caller_tcb);
+
+        }else{
+            // insert the caller context in the list is remains as another thread
+            list_add_element(ready_threads_round_robin, caller_tcb);
+        }
 
         // prepare the scheduler context to run
         makecontext(&scheduler_context, schedule_next_thread, 0);
@@ -37,20 +49,71 @@ int my_thread_create( void *function, int param ) {
 
     }
 
+    if(scheduler == ROUNDROBIN){
+
+        create_tcb_round_robin(function,"thread1");
+        create_tcb_round_robin(function,"thread2");
+        create_tcb_round_robin(function,"thread3");
+        create_tcb_round_robin(function,"thread4");
+        create_tcb_round_robin(function,"thread5");
+
+        list_print(ready_threads_round_robin);
+
+    }else if(scheduler == LOTTERY){
+
+        create_tcb_lottery(function,10,"thread1");
+        create_tcb_lottery(function,20,"thread2");
+        create_tcb_lottery(function,3,"thread3");
+        create_tcb_lottery(function,6,"thread4");
+        create_tcb_lottery(function,2,"thread5");
+
+        sort_max_min(ready_threads_lottery);
+
+    }else{
+        printf("Not specified scheduler");
+    }
+
+    return 0;
+    //return new_tcb->id;
+}
+
+void create_tcb_round_robin(void *function, char *name){
     // create a context where the new thread will run
+
     TCB *new_tcb = malloc(sizeof(TCB));
     new_tcb->id = serial_id++;
+    new_tcb->name = name;
     new_tcb->context = malloc( sizeof(ucontext_t) );
+    new_tcb->scheduler = ROUNDROBIN;
+
+    ucontext_t *new_thread_context = new_tcb->context;
+    getcontext(new_thread_context);
+    //new_tcb->context->uc_link = end_context; // make the link to the finishing context
+    ucontext_init_stack(new_thread_context);
+    makecontext(new_thread_context, function, 0);
+
+    // insert the thread context in the scheduler's list
+    list_add_element(ready_threads_round_robin, new_tcb);
+}
+
+void create_tcb_lottery(void *function,int tickets,char *name){
+    // create a context where the new thread will run
+
+    TCB *new_tcb = malloc(sizeof(TCB));
+    new_tcb->id = serial_id++;
+    new_tcb->name = name;
+    new_tcb->tickets = tickets;
+    new_tcb->context = malloc( sizeof(ucontext_t) );
+    new_tcb->scheduler = LOTTERY;
+
     ucontext_t *new_thread_context = new_tcb->context;
     getcontext(new_thread_context);
     new_tcb->context->uc_link = end_context; // make the link to the finishing context
     ucontext_init_stack(new_thread_context);
-    makecontext(new_thread_context, function, 1, param);
+    makecontext(new_thread_context, function, 0);
 
     // insert the thread context in the scheduler's list
-    list_add_element(ready_threads, new_tcb);
-
-    return new_tcb->id;
+    list_add_element(ready_threads_lottery, new_tcb);
 }
 
 
@@ -116,20 +179,59 @@ static void ucontext_init_stack(ucontext_t *context){
 
 
 
-ucontext_t *determine_next_context(){
+TCB *round_robin(){
     // Determine the next
-    int next_index = (current_context_index + 1) % ready_threads->size;
+    int next_index = (current_context_index + 1) % ready_threads_round_robin->size;
 
     // Set the next as the current
     current_context_index = next_index;
 
-    return list_get_element_at(ready_threads, current_context_index)->context;
+    printf("run --> %s\n",list_get_element_at(ready_threads_round_robin, current_context_index)->name );
+
+    return list_get_element_at(ready_threads_round_robin, current_context_index);
+
+}
+
+int get_random(int from, int to){
+    int number = rand () % (to + 1) + from;
+    return number;
+}
+
+
+int process_winner(){
+
+    int winner = get_random(0,total_tickets);
+    int sum = 0, i = 0;
+
+
+    while(i < ready_threads_round_robin->size -1){
+
+        sum += list_get_element_at(ready_threads_lottery, i)->tickets;
+
+        if(sum > winner){
+            break;
+        }
+        i++;
+    }
+    return i; //id del proceso ganador
+}
+
+
+TCB *lottery(){
+    // Determine the next
+    int next_index = process_winner();
+
+    //total_tickets -= list_get_element_at(ready_threads_round_robin, next_index)->tickets;
+
+    printf("run --> %s\n", list_get_element_at(ready_threads_lottery, next_index)->name);
+
+    return list_get_element_at(ready_threads_lottery, next_index);
 
 }
 
 
 
-void schedule_next_thread(){
+/*void schedule_next_thread(){
     // Determine the next thread context to be loaded
     ucontext_t *context_to_run = determine_next_context();
 
@@ -138,13 +240,40 @@ void schedule_next_thread(){
     current_context = context_to_run;
     /*TODO: check if we can remove this variable and use only current_tcb instead.
      * I think it would be just to replace usages of current_context to current_tcb->context */
-
+/*
     //update the current TCB
     current_tcb = list_get_element_at(ready_threads, current_context_index);
 
     // Set the alarm
     ualarm(ALARM_FREQUENCY*TO_MICROSECONDS, 0);
 
+    // Load the context to start running the thread
+    setcontext(context_to_run);
+}*/
+
+void schedule_next_thread(){
+    TCB *new_tcb;
+    ucontext_t *context_to_run;
+
+    if(SCHEDULER == ROUNDROBIN){
+        // Determine the next thread context to be loaded
+        new_tcb = round_robin();
+        context_to_run = new_tcb->context;
+        //update the current context
+        current_context = context_to_run;
+        // Set the alarm
+        alarm(ALARM_FREQUENCY);
+
+    }
+    if(SCHEDULER == LOTTERY){
+        // Determine the next thread context to be loaded
+        new_tcb = lottery();
+        context_to_run = new_tcb->context;
+        //update the current context
+        current_context = context_to_run;
+        // Set the alarm
+        alarm(new_tcb->tickets);
+    }
     // Load the context to start running the thread
     setcontext(context_to_run);
 }
@@ -193,7 +322,9 @@ void my_thread_init(){
     setup_alarm_handler();
 
     // initialize the list of ready threads
-    ready_threads = list_create();
+    ready_threads_round_robin = list_create();
+
+    ready_threads_lottery = list_create();
 
     // initialize the scheduler context
 //    scheduler_context = malloc(STACK_SIZE);
@@ -223,7 +354,7 @@ void end_function(int thread_id){
     // Remove the element from the TCB
     int index_to_delete = current_context_index;
     if(index_to_delete != LIST_ELEMENT_NOT_FOUND) {
-        list_remove_element_at(ready_threads, index_to_delete);
+        list_remove_element_at(ready_threads_round_robin, index_to_delete);
         printf("Thread deleted from list\n");
     } else{
         printf("Failed to delete TCB from list\n");
@@ -232,4 +363,49 @@ void end_function(int thread_id){
     // Call the scheduler to make it run the next thread
 //    kill(getpid(), SIGALRM); //TODO CHECK if this is the way to do it
     handle_alarm(SIGALRM);
+}
+
+
+void my_thread_chsched(int id){
+    TCB *thread;
+
+    thread = list_get_element_at(ready_threads_round_robin, id);
+
+    if(thread == NULL){
+        thread = list_get_element_at(ready_threads_lottery, id);
+
+        //Delete thread from lottery list
+        list_remove_element_at(ready_threads_lottery,id);
+
+        //remove number tickets thread of the total tickets
+        total_tickets-= thread->tickets;
+
+        //remove tickets to the thread.
+        thread->tickets = 0;
+
+        //insert thread in round robin list
+        list_add_element(ready_threads_round_robin, thread);
+
+        //list_print(ready_threads_round_robin);
+        //list_print(ready_threads_lottery);
+
+    }else{
+        //delete thread from round robin list
+        list_remove_element_at(ready_threads_round_robin,id);
+
+        //give tickets to the thread
+        thread->tickets = 12;
+
+        //add tickets to total tickets
+        total_tickets+=12;
+
+        //insert thread in lottery list
+        list_add_element(ready_threads_lottery, thread);
+
+        //sort list for scheduling
+        sort_max_min(ready_threads_lottery);
+
+        //list_print(ready_threads_lottery);
+        //list_print(ready_threads_round_robin);
+    }
 }

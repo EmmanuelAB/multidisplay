@@ -40,7 +40,7 @@ void list_print(list *a_list){
     printf("[");
     while(current != NULL){
         // print current element
-        printf(a_list->format, current->value);
+        printf(a_list->format, current->value->name);
 
         if (current->next != NULL){
             // there is elements left
@@ -119,4 +119,31 @@ int list_get_index_of_element_with_id(list *a_list, int id){
         current_index++;
     }
     return return_index;
+}
+
+void sort_max_min(list *a_list){
+    if (a_list != NULL){
+        node *pivote = NULL, *current= NULL;
+        pivote = a_list->first;
+        int aux = 0;
+
+        while(pivote != NULL){
+            current = pivote->next;
+
+            while(current != NULL){
+                if (pivote->value->tickets < current->value->tickets){
+                    aux = pivote->value;
+
+                    pivote->value = current->value;
+                    current->value = aux;
+                }
+                current = current->next;
+            }
+            pivote = pivote->next;
+        }
+
+
+    }else{
+        printf("List is NULL\n");
+    }
 }

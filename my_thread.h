@@ -23,11 +23,20 @@
 #define KB 1000
 #define STACK_SIZE 1000 * KB // the stack used by the thread's contexts
 
+#define ROUNDROBIN 1
+#define LOTTERY 2
+
+static int SCHEDULER = 1;//for testing
+
+static int total_tickets = 42;
+
 static int serial_id = 0; // a consecutive serial to track the current track id to generate and return
 
 static int current_context_index = -1; // just to make it work the first time
 
-static list *ready_threads;
+static list *ready_threads_round_robin;
+
+static list *ready_threads_lottery;
 
 static int scheduler_inialized = 0;
 
@@ -50,9 +59,14 @@ static TCB *current_tcb;
  * Returns the id of the created thread
  * After calling, the caller becomes also a thread
 */
-int my_thread_create( void *function, int param);
+int my_thread_create( void *function, int scheduler);
 
 
+/*Create TCB scheduling Round Robin*/
+void create_tcb_round_robin(void *function,char *name);
+
+//Create TCB scheduling Lottery
+void create_tcb_lottery(void *function,int tickets,char *name);
 
 /*
  * Allocates a stack of -STACK_SIZE- bytes and sets it to the -context-
@@ -82,8 +96,19 @@ void schedule_next_thread();
 /*
  * Based on circular shifting
  */
-ucontext_t *determine_next_context();
+TCB *round_robin();
 
+//Return a random number between two numbers
+int get_random(int from, int to);
+
+//Return the id of the winner thread
+int process_winner();
+
+//Return the winner thread
+TCB *lottery();
+
+//change scheduler the one thread from round robin to lottery or reverse
+void my_thread_chsched(int id);
 
 
 /*
@@ -137,5 +162,6 @@ void my_mutex_init(int *lock);
  * Receives the id of the thread that has finished
  */
 void end_function(int thread_id);
+
 
 #endif //MULTIDISPLAY_MY_THREAD_H
