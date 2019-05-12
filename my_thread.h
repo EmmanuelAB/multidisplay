@@ -9,7 +9,7 @@
 #include "list.h"
 
 
-#define ALARM_FREQUENCY 0.0001
+#define ALARM_FREQUENCY 1
 #define TO_MICROSECONDS 1000000
 
 #define MUTEX_LOCKED_VALUE 1
@@ -26,9 +26,10 @@
 #define ROUNDROBIN 1
 #define LOTTERY 2
 
-static int SCHEDULER = 1;//for testing
+// 1 for round robin, 2 for lottery, simulation scheduler real time
+static int SCHEDULER = 2;//for testing
 
-static int total_tickets = 42;
+static int total_tickets = 45;
 
 static int serial_id = 0; // a consecutive serial to track the current track id to generate and return
 
@@ -80,6 +81,9 @@ static void ucontext_init_stack(ucontext_t *context);
  */
 void my_thread_init();
 
+//Initialize the final context this when a thread ends
+void initialize_end_context();
+
 
 /*
  * Establishes what to do when the alarm interrupt occurs
@@ -108,7 +112,8 @@ int process_winner();
 TCB *lottery();
 
 //change scheduler the one thread from round robin to lottery or reverse
-void my_thread_chsched(int id);
+//for change the scheduler of a thread
+void my_thread_chsched(int thread_id);
 
 
 /*

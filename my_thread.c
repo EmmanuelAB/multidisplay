@@ -29,7 +29,9 @@ int my_thread_create( void *function, int scheduler ) {
 
         //if scheduler is lottery, give tickets
         if(scheduler == LOTTERY){
-            caller_tcb->tickets = 5;
+            caller_tcb->tickets = 1;
+            //add number tickets to total tickets
+            total_tickets+=caller_tcb->tickets;
             // insert the caller context in the list is remains as another thread
             list_add_element(ready_threads_lottery, caller_tcb);
 
@@ -57,17 +59,18 @@ int my_thread_create( void *function, int scheduler ) {
         create_tcb_round_robin(function,"thread4");
         create_tcb_round_robin(function,"thread5");
 
-        list_print(ready_threads_round_robin);
+        //list_print(ready_threads_round_robin);
 
     }else if(scheduler == LOTTERY){
 
         create_tcb_lottery(function,10,"thread1");
         create_tcb_lottery(function,20,"thread2");
-        create_tcb_lottery(function,3,"thread3");
+        create_tcb_lottery(function,4,"thread3");
         create_tcb_lottery(function,6,"thread4");
-        create_tcb_lottery(function,2,"thread5");
+        create_tcb_lottery(function,5,"thread5");
 
         sort_max_min(ready_threads_lottery);
+        //list_print(ready_threads_lottery);
 
     }else{
         printf("Not specified scheduler");
@@ -88,7 +91,7 @@ void create_tcb_round_robin(void *function, char *name){
 
     ucontext_t *new_thread_context = new_tcb->context;
     getcontext(new_thread_context);
-    //new_tcb->context->uc_link = end_context; // make the link to the finishing context
+    new_tcb->context->uc_link = end_context; // make the link to the finishing context
     ucontext_init_stack(new_thread_context);
     makecontext(new_thread_context, function, 0);
 
@@ -221,11 +224,22 @@ TCB *lottery(){
     // Determine the next
     int next_index = process_winner();
 
-    //total_tickets -= list_get_element_at(ready_threads_round_robin, next_index)->tickets;
+    TCB *new_tcb;
 
-    printf("run --> %s\n", list_get_element_at(ready_threads_lottery, next_index)->name);
+    //when the thread finish?
+    current_context_index = next_index;
 
-    return list_get_element_at(ready_threads_lottery, next_index);
+    new_tcb = list_get_element_at(ready_threads_lottery, next_index);
+
+    //Do not remove the main from the list.
+    if(new_tcb->id != 0){
+        total_tickets -= new_tcb->tickets;
+    }
+
+    //for testing
+    printf("run --> %s\n", new_tcb->name);
+
+    return new_tcb;
 
 }
 
@@ -321,24 +335,28 @@ void my_thread_init(){
     // set the alarm handler
     setup_alarm_handler();
 
-    // initialize the list of ready threads
+    // initialize the list of ready threads round robin
     ready_threads_round_robin = list_create();
 
+    // initialize the list of ready threads lottery
     ready_threads_lottery = list_create();
 
-    // initialize the scheduler context
-//    scheduler_context = malloc(STACK_SIZE);
+    //initialize the scheduler context
+    //scheduler_context = malloc(STACK_SIZE);
     getcontext(&scheduler_context);
 
     ucontext_init_stack(&scheduler_context);
 
     //initialize the context that will be loaded when every thread finishes
+    initialize_end_context();
+}
+
+//Initialize the final context
+void initialize_end_context(){
     end_context = malloc(sizeof(ucontext_t));
     ucontext_init_stack(end_context);
     getcontext(end_context);
     makecontext(end_context, end_function, 0);
-
-
 }
 
 
@@ -349,13 +367,21 @@ void my_mutex_init(int *lock){
 
 
 void end_function(int thread_id){
-//    printf("END FUNC\n"); return;
+    //printf("END FUNC\n"); //return;
 
     // Remove the element from the TCB
     int index_to_delete = current_context_index;
+
     if(index_to_delete != LIST_ELEMENT_NOT_FOUND) {
-        list_remove_element_at(ready_threads_round_robin, index_to_delete);
+
+        if(SCHEDULER == ROUNDROBIN){//delete list round robin
+            list_remove_element_at(ready_threads_round_robin, index_to_delete);
+
+        }else{//delete list lottery
+            list_remove_element_at(ready_threads_lottery, index_to_delete);
+        }
         printf("Thread deleted from list\n");
+
     } else{
         printf("Failed to delete TCB from list\n");
     }
@@ -366,16 +392,16 @@ void end_function(int thread_id){
 }
 
 
-void my_thread_chsched(int id){
+void my_thread_chsched(int thread_id){
     TCB *thread;
 
-    thread = list_get_element_at(ready_threads_round_robin, id);
+    thread = list_get_element_at(ready_threads_round_robin, thread_id);
 
     if(thread == NULL){
-        thread = list_get_element_at(ready_threads_lottery, id);
+        thread = list_get_element_at(ready_threads_lottery, thread_id);
 
         //Delete thread from lottery list
-        list_remove_element_at(ready_threads_lottery,id);
+        list_remove_element_at(ready_threads_lottery,thread_id);
 
         //remove number tickets thread of the total tickets
         total_tickets-= thread->tickets;
@@ -391,7 +417,7 @@ void my_thread_chsched(int id){
 
     }else{
         //delete thread from round robin list
-        list_remove_element_at(ready_threads_round_robin,id);
+        list_remove_element_at(ready_threads_round_robin,thread_id);
 
         //give tickets to the thread
         thread->tickets = 12;

@@ -10,8 +10,10 @@ pthread_t threads[2];
 
 
 void test_function(){
-    while(1){
+    int cont= 0;
+    while(cont <= 10){
         usleep(0.25 * TO_MICROSECONDS);
+        cont++;
     }
 }
 
@@ -146,7 +148,7 @@ int main() {
 
     my_thread_init();
 
-    my_thread_create( test_function , ROUNDROBIN);
+    my_thread_create( test_function , LOTTERY);
 
     while(1){
         //printf("Main doing nothing\n");
