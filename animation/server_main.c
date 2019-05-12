@@ -78,6 +78,25 @@ void calc_func(fpoint a, fpoint b, float *m, float *be){
 
 float eval(float m, float x, float b){ return m*x+b;}
 
+void draw_line(fpoint ini, fpoint end){
+
+    end.y *= -1; // invert to negative
+    ini.y *= -1; // to calculate the linear function criteria
+
+    float m, be;
+    calc_func(ini,end,&m,&be);
+
+    int y;
+    for (int x = ini.x; x < end.x; ++x) {
+        y = (int) round((double)eval(m, x, be));
+        move( -1*y, x); //remove the negative
+        printw("%c",'X');
+    }
+
+    refresh();
+
+}
+
 // testing main
 int main(){
     initscr();
@@ -88,29 +107,24 @@ int main(){
     clean_canvas(canvas, canvas_dimension);
     paste_canvas();
 
-    // for short, to test
-    int w = canvas_dimension.width, h = canvas_dimension.height;
 
-    fpoint a = {w/3, 2*h/3};
+    //parse json
+    parse_file();
 
-    fpoint b = {2*w/3, h/3};
+    //iterate all objects
+    fpoint ini, end;
+    for (int i = 0; i < num_objects; ++i) {
+        ini.x = (float)figure_list[i].initial_pos_x;
+        ini.y = (float)figure_list[i].initial_pos_y;
 
+        end.x = (float)figure_list[i].end_pos_x;
+        end.y = (float)figure_list[i].end_pos_y;
 
-    b.y *= -1; // invert to negative
-    a.y *= -1; // to calculate the linear function criteria
+        draw_line(ini, end);
 
-    float m, be;
-    calc_func(a,b,&m,&be);
-
-    int y;
-    for (int x = a.x; x < b.x; ++x) {
-
-        y = (int) round((double)eval(m, x, be));
-        move( -1*y, x); //remove the negative
-        printw("%c",'X');
     }
 
-    refresh();
+
 
     getchar();
     endwin();

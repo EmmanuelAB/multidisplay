@@ -1,24 +1,24 @@
 #include "parse_json.h"
 
-char* file_name = "../TestingFiles/example.json";
+char* file_name = "../test_files/example.json";
 
 void read_file(){
-    printf("\nReading file\n");
+//    printf("\nReading file\n");
     FILE *json_file = fopen(file_name, "r");
     fread(buffer, BUFFER_SIZE, 1, json_file);
     fclose(json_file);
 }
 
 void set_figure_list(){
-    printf("\nSetting figure list\n");
+//    printf("\nSetting figure list\n");
     parsed_json = json_tokener_parse(buffer);
     json_object_object_get_ex(parsed_json, "objects", &json_figure_list);
     num_objects = json_object_array_length(json_figure_list);
-    printf("\nThe number of objects is %d\n", num_objects);
+//    printf("\nThe number of objects is %d\n", num_objects);
 }
 
 void set_figure_from_list(){
-    printf("\nSetting each figure in list\n");
+//    printf("\nSetting each figure in list\n");
     struct json_object *current_json_figure;
     struct figure current_figure;
     for (int i = 0; i < num_objects; i++) {
@@ -30,7 +30,7 @@ void set_figure_from_list(){
 
 struct figure build_figure_from_json_figure(struct json_object *json_figure){
 
-    printf("\nBuilding figure\n");
+//    printf("\nBuilding figure\n");
 
     struct json_object *type;
     struct json_object *figure_file_name;
@@ -81,9 +81,9 @@ struct figure build_figure_from_json_figure(struct json_object *json_figure){
 }
 
 char* parse_figure_file(const char* filename){
-    printf("\nReading figure file\n");
+//    printf("\nReading figure file\n");
     char path[30];
-    sprintf(path, "%s%s", "../TestingFiles/", filename);
+    sprintf(path, "%s%s", "../test_files/", filename);
     FILE* file = fopen(path, "r");
     static char content[BUFFER_SIZE];
     fread(content, BUFFER_SIZE, 1, file);
