@@ -13,7 +13,7 @@
 
 
 
-int my_thread_create( void *function, int scheduler ) {
+int my_thread_create( void *function, int param, int scheduler ) {
     //for testing
     ready_threads_round_robin->format = "%s";
     ready_threads_lottery->format = "%s";
@@ -53,7 +53,7 @@ int my_thread_create( void *function, int scheduler ) {
 
     if(scheduler == ROUNDROBIN){
 
-        create_tcb_round_robin(function,"thread1");
+        create_tcb_round_robin(function,"thread1", param);
 
     }else if(scheduler == LOTTERY){
 
@@ -70,7 +70,7 @@ int my_thread_create( void *function, int scheduler ) {
     //return new_tcb->id;
 }
 
-void create_tcb_round_robin(void *function, char *name){
+void create_tcb_round_robin(void *function, char *name, int param){
     // create a context where the new thread will run
 
     TCB *new_tcb = malloc(sizeof(TCB));
@@ -83,7 +83,7 @@ void create_tcb_round_robin(void *function, char *name){
     getcontext(new_thread_context);
     new_tcb->context->uc_link = end_context; // make the link to the finishing context
     ucontext_init_stack(new_thread_context);
-    makecontext(new_thread_context, function, 0);
+    makecontext(new_thread_context, function, 1, param);
 
     // insert the thread context in the scheduler's list
     list_add_element(ready_threads_round_robin, new_tcb);
@@ -285,7 +285,7 @@ void schedule_next_thread(){
 
 
 void handle_alarm(int signal_number){
-    printf("alarm!\n");
+//    printf("alarm!\n");
 //    printf("Interrupt! || [%d] threads running\n", ready_threads->size);
 
     makecontext(&scheduler_context, schedule_next_thread, 0);

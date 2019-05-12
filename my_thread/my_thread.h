@@ -9,7 +9,7 @@
 #include "../linked_list/list.h"
 
 
-#define ALARM_FREQUENCY 0.1
+#define ALARM_FREQUENCY 0.01
 #define TO_MICROSECONDS 1000000
 
 #define MUTEX_LOCKED_VALUE 1
@@ -60,13 +60,13 @@ static TCB *current_tcb;
  * Returns the id of the created thread
  * After calling, the caller becomes also a thread
 */
-int my_thread_create( void *function, int scheduler);
+int my_thread_create( void *function, int param, int scheduler );
 
 
 /*
  * Creates a TCB that starts at -function- and inserts it into the round robin list
 */
-void create_tcb_round_robin(void *function,char *name);
+void create_tcb_round_robin(void *function, char *name, int param);
 
 /*
  * Creates a TCB that starts at -function- and inserts it into the lottery list
