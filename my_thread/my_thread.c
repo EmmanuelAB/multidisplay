@@ -37,6 +37,7 @@ int my_thread_create( void *function, int param, int scheduler ) {
 
         }else{
             // insert the caller context in the list is remains as another thread
+            printf("\nInsert with round robin\n");
             list_add_element(ready_threads_round_robin, caller_tcb);
         }
 
@@ -427,7 +428,12 @@ void my_thread_chsched(int thread_id){
 }
 
 int get_thread_index_waiting_for(TCB* thread1){
-    node* iterator = blocked_threads_list_round_robin->first;
+    list *blocked_list;
+
+    if(SCHEDULER == ROUNDROBIN) blocked_list = blocked_threads_list_round_robin;
+    else blocked_list = blocked_threads_list_lottery;
+
+    node* iterator = blocked_list->first;
     int index = 0;
     while(iterator != NULL){
         if(iterator->value->waiting_thread_id == thread1->id){
@@ -455,9 +461,13 @@ void my_thread_end(){
         current_blocked_list = blocked_threads_list_lottery;
     }
 
+    printf("\nScheduler set\n");
+
     // if other thread is waiting for this one push it into the ready list
     int waiting_thread_index = get_thread_index_waiting_for((list_get_element_at(current_ready_list, current_context_index)));
     //printf("\nWaiting thread index %d\n", waiting_thread_index);
+
+    printf("\nIndex get\n");
 
     // remove context from ready list
     list_remove_element_at(current_ready_list, current_context_index);

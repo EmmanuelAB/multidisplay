@@ -45,6 +45,11 @@ int main() {
 
     int thread_id3 = my_thread_create(function3, (int) NULL, ROUNDROBIN );
 
+    if(SCHEDULER == ROUNDROBIN){
+        list_print(ready_threads_round_robin);
+    }
+    else list_print(ready_threads_lottery);
+
     int n = 0;
     while(n < 5){
         if(n == 3) my_thread_yield();

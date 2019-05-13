@@ -15,6 +15,13 @@ add_executable(server
         animation/server.h
         )
 
+add_executable(main
+        main.c
+        my_thread/my_thread.c
+        my_thread/my_thread.h
+        linked_list/list.c
+        linked_list/list.h
+        linked_list/tcb.h)
 
 add_executable(client
         animation/client_main.c
@@ -28,3 +35,4 @@ add_executable(client
 
 target_link_libraries(server ncurses json-c)
 target_link_libraries(client ncurses json-c)
+target_link_libraries(main ncurses json-c)
