@@ -16,22 +16,30 @@ list *list_create(const char *format){
 void list_add_element(list *a_list, TYPE element){
     // create a new node to insert
     node *new_node = malloc(sizeof(node));
-
     // set the end of the list
     new_node->next = NULL;
 
-    // set the value of the new node
     new_node->value = element;
 
-    if(a_list->first == NULL)
-        a_list->last = a_list->first = new_node;
-    else if(a_list->size == 1)
-        a_list->first->next = new_node;
-    else
-        a_list->last->next = new_node;// link the new element
-    a_list->last = new_node;
 
-    // update list size
+
+    if(a_list->size == 1){
+        a_list->first->next = new_node;
+
+    }else if(a_list->size == 2){
+        a_list->first->next->next = new_node;
+        a_list->last = new_node;
+
+    }else if (a_list->first != NULL){
+
+        a_list->last->next = new_node;
+        a_list->last = new_node;
+    }
+    else{
+        a_list->first = new_node;
+        a_list->last = new_node;
+    }
+
     a_list->size++;
 
 }
@@ -125,9 +133,8 @@ int list_get_index_of_element_with_id(list *a_list, int id){
 
 void sort_max_min(list *a_list){
     if (a_list != NULL){
-        node *pivote = NULL, *current= NULL;
+        node *pivote = NULL, *current= NULL, *aux = NULL;
         pivote = a_list->first;
-        int aux = 0;
 
         while(pivote != NULL){
             current = pivote->next;

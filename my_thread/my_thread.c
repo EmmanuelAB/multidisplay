@@ -54,11 +54,11 @@ int my_thread_create( void *function, int param, int scheduler ) {
     int thread_id = 0;
     if(scheduler == ROUNDROBIN){
 
-        thread_id = create_tcb_round_robin(function,"thread1", param);
+        thread_id = create_tcb_round_robin(function,"thread", param);
 
     }else if(scheduler == LOTTERY){
 
-        thread_id = create_tcb_lottery(function,10,"thread1");
+        thread_id = create_tcb_lottery(function,param,"thread");
 
         sort_max_min(ready_threads_lottery);
         //list_print(ready_threads_lottery);
@@ -403,13 +403,15 @@ void end_function(int thread_id){
 void my_thread_chsched(int thread_id){
     TCB *thread;
 
-    thread = list_get_element_at(ready_threads_round_robin, thread_id);
+    int index_thread = list_get_index_of_element_with_id(ready_threads_round_robin, thread_id);
 
-    if(thread == NULL){
-        thread = list_get_element_at(ready_threads_lottery, thread_id);
+    if(index_thread == -1){
+        index_thread = list_get_index_of_element_with_id(ready_threads_lottery, thread_id);
+        //printf("is index %d",index_thread);
+        thread = list_get_element_at(ready_threads_lottery, index_thread);
 
         //Delete thread from lottery list
-        list_remove_element_at(ready_threads_lottery,thread_id);
+        list_remove_element_at(ready_threads_lottery,index_thread);
 
         //remove number tickets thread of the total tickets
         total_tickets-= thread->tickets;
@@ -420,18 +422,20 @@ void my_thread_chsched(int thread_id){
         //insert thread in round robin list
         list_add_element(ready_threads_round_robin, thread);
 
-        //list_print(ready_threads_round_robin);
+        list_print(ready_threads_round_robin);
+        //printf("%d\n",ready_threads_round_robin->size);
         //list_print(ready_threads_lottery);
 
     }else{
+        thread = list_get_element_at(ready_threads_round_robin, index_thread);
         //delete thread from round robin list
-        list_remove_element_at(ready_threads_round_robin,thread_id);
+        list_remove_element_at(ready_threads_round_robin,index_thread);
 
         //give tickets to the thread
-        thread->tickets = 12;
+        thread->tickets = 1;
 
         //add tickets to total tickets
-        total_tickets+=12;
+        total_tickets+=1;
 
         //insert thread in lottery list
         list_add_element(ready_threads_lottery, thread);
@@ -439,7 +443,7 @@ void my_thread_chsched(int thread_id){
         //sort list for scheduling
         sort_max_min(ready_threads_lottery);
 
-        //list_print(ready_threads_lottery);
+        list_print(ready_threads_lottery);
         //list_print(ready_threads_round_robin);
     }
 }
