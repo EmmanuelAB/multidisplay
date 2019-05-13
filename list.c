@@ -24,8 +24,8 @@ void list_add_element(list *a_list, TYPE element){
 
     if(a_list->first == NULL)
         a_list->last = a_list->first = new_node;
-    //else if(a_list->size == 1)
-        //a_list->first->next = new_node;
+    else if(a_list->size == 1)
+        a_list->first->next = new_node;
     else
         a_list->last->next = new_node;// link the new element
     a_list->last = new_node;
@@ -33,10 +33,6 @@ void list_add_element(list *a_list, TYPE element){
     // update list size
     a_list->size++;
 
-    printf("\nIn adding element\n");
-    //node* second = a_list->first->next;
-    printf("\nElement added id %d\n", a_list->last->value->id);
-    list_print(a_list);
 }
 
 

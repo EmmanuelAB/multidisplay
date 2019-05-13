@@ -1,8 +1,6 @@
 #include <unistd.h>
 #include "my_thread.h"
 
-#define MAIN_CONTEXT_INDEX 0
-
 void function2(){
     int n = 0;
     while(n < 10){
@@ -47,13 +45,6 @@ int main() {
 
     int thread_id3 = my_thread_create( function3 );
 
-    my_thread_join(thread_id1);
-    my_thread_join(thread_id2);
-    my_thread_join(thread_id3);
-
-    printf("\nAfter joins\n");
-    list_print(ready_threads_list);
-
     int n = 0;
     while(n < 5){
         printf("Main doing nothing\n");
@@ -61,7 +52,15 @@ int main() {
         n++;
     }
 
-    //my_thread_join(thread_id1);
+    printf("\nFINISHED MAIN\n");
+
+    my_thread_join(thread_id1);
+    my_thread_join(thread_id2);
+    my_thread_join(thread_id3);
+
+    printf("\nAfter joins\n\n");
+
+    list_print(ready_threads_list);
 
     printf("\nFinish main\n");
 

@@ -164,14 +164,15 @@ void my_thread_end(){
         TCB* waiting_thread_TCB = list_remove_element_at(blocked_threads_list, waiting_thread_index);
 
         //printf("\nThread removed from blocked thread list\n");
+
         printf("\nThread removed %d\n", waiting_thread_TCB->id);
 
-        printf("\nReady size before %d\n", ready_threads_list->size);
+        //printf("\nReady size before %d\n", ready_threads_list->size);
 
         list_add_element(ready_threads_list, waiting_thread_TCB);
 
-        printf("\nReady size after %d\n", ready_threads_list->size);
-        printf("\nTCB id %d\n", list_get_element_at(ready_threads_list, 1)->id);
+        //printf("\nReady size after %d\n", ready_threads_list->size);
+
         //printf("\nThread added to ready list\n");
 
         list_print(ready_threads_list);
