@@ -33,7 +33,7 @@ void list_print(list *a_list);
 
 int list_get_index_of(list *a_list, TYPE value_looking_for);
 
-int list_remove_element_at(list *a_list, int index);
+TYPE list_remove_element_at(list *a_list, int index);
 
 TYPE list_get_element_at(list *a_list, int index);
 

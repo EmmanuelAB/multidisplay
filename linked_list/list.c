@@ -25,13 +25,15 @@ void list_add_element(list *a_list, TYPE element){
 
     if(a_list->first == NULL)
         a_list->last = a_list->first = new_node;
-
+    else if(a_list->size == 1)
+        a_list->first->next = new_node;
     else
         a_list->last->next = new_node;// link the new element
     a_list->last = new_node;
 
     // update list size
     a_list->size++;
+
 }
 
 
@@ -54,14 +56,15 @@ void list_print(list *a_list){
 }
 
 // return 0 if found and deleted or -1 if no found
-int list_remove_element_at(list *a_list, int index){
-    int return_value = -1;
+TYPE list_remove_element_at(list *a_list, int index){
+    TYPE return_value = NULL;
     int current_index = 0;
     int element_deleted = 0;
     node *current = a_list->first;
     node *prior_node = current;
     while (current != NULL && ! element_deleted) {
         if(current_index == index){
+            return_value = current->value;
             // special_case
             if(index == 0)
                 a_list->first = current->next;
@@ -69,8 +72,7 @@ int list_remove_element_at(list *a_list, int index){
                 prior_node->next = current->next;
             a_list->size--;
             element_deleted = 1;
-            return_value = 0;
-            free(current);
+            //free(current);
 
         }else{
             prior_node = current;

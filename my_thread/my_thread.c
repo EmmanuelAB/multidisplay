@@ -436,25 +436,37 @@ int get_thread_index_waiting_for(TCB* thread1){
         iterator = iterator->next;
         index++;
     }
-    return FALSE;
+    return -1;
 }
 
 void my_thread_end(){
 
     printf("\nIn END\n");
 
+    list *current_ready_list, *current_blocked_list;
+
+    // set waiting id attribute to caller thread
+    if(SCHEDULER == ROUNDROBIN){
+        current_ready_list = ready_threads_round_robin;
+        current_blocked_list = blocked_threads_list_round_robin;
+    }
+    else{
+        current_ready_list = ready_threads_lottery;
+        current_blocked_list = blocked_threads_list_lottery;
+    }
+
     // if other thread is waiting for this one push it into the ready list
-    int waiting_thread_index = get_thread_index_waiting_for((list_get_element_at(ready_threads_list, current_context_index)));
+    int waiting_thread_index = get_thread_index_waiting_for((list_get_element_at(current_ready_list, current_context_index)));
     //printf("\nWaiting thread index %d\n", waiting_thread_index);
 
     // remove context from ready list
-    list_remove_element_at(ready_threads_list, current_context_index);
+    list_remove_element_at(current_ready_list, current_context_index);
 
-    if(waiting_thread_index != FALSE){
+    if(waiting_thread_index != -1){
 
         printf("\nSomeone is waiting for me\n");
 
-        TCB* waiting_thread_TCB = list_remove_element_at(blocked_threads_list_round_robin, waiting_thread_index);
+        TCB* waiting_thread_TCB = list_remove_element_at(current_blocked_list, waiting_thread_index);
 
         //printf("\nThread removed from blocked thread list\n");
 
@@ -462,14 +474,14 @@ void my_thread_end(){
 
         //printf("\nReady size before %d\n", ready_threads_list->size);
 
-        list_add_element(ready_threads_list, waiting_thread_TCB);
+        list_add_element(current_ready_list, waiting_thread_TCB);
 
         //printf("\nReady size after %d\n", ready_threads_list->size);
 
         //printf("\nThread added to ready list\n");
 
-        list_print(ready_threads_list);
-        list_print(blocked_threads_list_round_robin);
+        list_print(current_ready_list);
+        list_print(current_blocked_list);
     }
 
     // swap to scheduler context
@@ -481,17 +493,19 @@ void my_thread_join(int thread_id){
 
     printf("\nIn join");
 
-    list* current_list;
+    list *current_ready_list, *current_blocked_list;
 
     // set waiting id attribute to caller thread
     if(SCHEDULER == ROUNDROBIN){
-        current_list = ready_threads_round_robin;
+        current_ready_list = ready_threads_round_robin;
+        current_blocked_list = blocked_threads_list_round_robin;
     }
     else{
-        current_list = ready_threads_lottery;
+        current_ready_list = ready_threads_lottery;
+        current_blocked_list = blocked_threads_list_lottery;
     }
 
-    TCB* caller_thread_TCB = list_get_element_at(current_list, current_context_index);
+    TCB* caller_thread_TCB = list_get_element_at(current_ready_list, current_context_index);
     caller_thread_TCB->waiting_thread_id = thread_id;
 
     //printf("\nCurrent thread index %d\n", current_context_index);
@@ -499,12 +513,12 @@ void my_thread_join(int thread_id){
     printf("\nWaiting thread id %d\n", caller_thread_TCB->waiting_thread_id);
 
     // remove caller thread from scheduler ready list
-    TCB* caller_threadTCB = list_remove_element_at(current_list, current_context_index);
+    TCB* caller_threadTCB = list_remove_element_at(current_ready_list, current_context_index);
     // push caller thread to waiting list
-    list_add_element(blocked_threads_list_round_robin, caller_threadTCB);
+    list_add_element(current_blocked_list, caller_threadTCB);
 
-    list_print(current_list);
-    list_print(blocked_threads_list_round_robin);
+    list_print(current_ready_list);
+    list_print(current_blocked_list);
 
     // swap to scheduler context
     swapcontext(caller_thread_TCB->context, &scheduler_context);
