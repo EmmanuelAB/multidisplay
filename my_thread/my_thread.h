@@ -35,13 +35,13 @@ static int serial_id = 0; // a consecutive serial to track the current track id 
 
 static int current_context_index = -1; // just to make it work the first time
 
-static list *ready_threads_round_robin;
+list *ready_threads_round_robin;
 
-static list *ready_threads_lottery;
+list *ready_threads_lottery;
 
-static list *blocked_threads_list_round_robin;
+list *blocked_threads_list_round_robin;
 
-static list *blocked_threads_list_lottery;
+list *blocked_threads_list_lottery;
 
 static int scheduler_initialized = 0;
 
