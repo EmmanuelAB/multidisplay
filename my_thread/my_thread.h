@@ -70,12 +70,12 @@ int my_thread_create( void *function, int param, int scheduler );
 /*
  * Creates a TCB that starts at -function- and inserts it into the round robin list
 */
-void create_tcb_round_robin(void *function, char *name, int param);
+int create_tcb_round_robin(void *function, char *name, int param);
 
 /*
  * Creates a TCB that starts at -function- and inserts it into the lottery list
 */
-void create_tcb_lottery(void *function,int tickets,char *name);
+int create_tcb_lottery(void *function,int tickets,char *name);
 
 /*
  * Allocates a stack of -STACK_SIZE- bytes and sets it to the -context-

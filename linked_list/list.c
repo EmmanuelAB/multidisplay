@@ -42,7 +42,7 @@ void list_print(list *a_list){
     printf("[");
     while(current != NULL){
         // print current element
-        printf(a_list->format, current->value);
+        printf(a_list->format, current->value->id);
 
         if (current->next != NULL){
             // there is elements left
