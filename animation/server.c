@@ -37,7 +37,7 @@ int wait_connections(int socket_fd, int *sockets){
 
 void ask_terminal_size(area *dimension){
 
-    dimension->width = 40;
+    dimension->width = 20;
     dimension->height = 10;
 
 //    printf("Enter terminal heigth:");

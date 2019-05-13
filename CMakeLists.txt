@@ -10,6 +10,7 @@ add_executable(server
         my_thread/my_thread.c
         linked_list/list.c
         utils/error_handling.c
+        parse_json/parse_json.c
         animation/server.c
         animation/server.h
         )
@@ -32,6 +33,6 @@ add_executable(client
         utils/error_handling.c
         )
 
-target_link_libraries(server ncurses json-c)
+target_link_libraries(server ncurses json-c m)
 target_link_libraries(client ncurses json-c)
 target_link_libraries(main ncurses json-c)
