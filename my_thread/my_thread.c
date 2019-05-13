@@ -140,13 +140,14 @@ void my_mutex_lock(int *lock){
 
     // if couldn't get the lock wait until it's released
     if (expected == MUTEX_LOCKED_VALUE){
-        printf("nope\n");
+//        printf("nope\n");
         //sleep until the lock is released
         syscall(SYS_futex, lock, FUTEX_WAIT, MUTEX_LOCKED_VALUE, NULL, NULL, NULL);
-        printf("after call\n");
+//        printf("after call\n");x
     }
-    else{ printf("mine\n"); }
-
+    else{
+        //printf("mine\n");
+    }
 }
 
 
@@ -370,10 +371,10 @@ void end_function(int thread_id){
         }else{//delete list lottery
             list_remove_element_at(ready_threads_lottery, index_to_delete);
         }
-        printf("Thread deleted from list\n");
+//        printf("Thread deleted from list\n");
 
     } else{
-        printf("Failed to delete TCB from list\n");
+//        printf("Failed to delete TCB from list\n");
     }
 
     // Call the scheduler to make it run the next thread

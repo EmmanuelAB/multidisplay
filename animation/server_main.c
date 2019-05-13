@@ -15,6 +15,8 @@ int socket_fd; // the socket descriptor of the server
 
 area canvas_dimension;
 
+int *locks; // a matrix of mutexes that help to synchronize the object and avoid crashes between them
+
 char *canvas;
 
 typedef struct fpoint{
@@ -23,6 +25,10 @@ typedef struct fpoint{
 } fpoint;
 
 
+
+/*
+ * Prints the matrix to the ncurses screen
+ */
 void paste_canvas(){
     char c;
     for (int i = 0; i < canvas_dimension.height; ++i) {
@@ -34,6 +40,8 @@ void paste_canvas(){
     }
     refresh();
 }
+
+
 
 /*
  * Move a char from left to right in straight-line
@@ -65,18 +73,25 @@ void monitor_updater(int param){//not used
 
 
 
-int maina() {
-
-
-}
-
-
 void calc_func(fpoint a, fpoint b, float *m, float *be){
     *m = (b.y - a.y) / (b.x - a.x);
     *be = a.y - (*m) * a.x;
 }
 
+
+
+int *get_lock_at(int row, int column){
+    return locks + (row*canvas_dimension.width + column)*sizeof(int);
+
+}
+
+
+
+
 float eval(float m, float x, float b){ return m*x+b;}
+
+
+
 
 void draw_line(fpoint ini, fpoint end){
 
@@ -97,40 +112,125 @@ void draw_line(fpoint ini, fpoint end){
 
 }
 
+
+
+
+void left_to_right(){
+    int ini_value = 0, end_value = canvas_dimension.width;
+    int row = 0;
+    int *lock;
+    for (int i = ini_value; i < end_value; ++i) {
+        int n = canvas_dimension.width;
+
+        // lock the cell before writing to it
+        lock = get_lock_at(row, i);
+        my_mutex_lock(lock);
+
+        // write to the cell
+        char *cell = canvas + row*n + i;
+        *(cell) = SYMBOL;
+
+        usleep(0.05*TO_MICROSECONDS);
+
+        *cell = EMPTY_CHAR;
+
+        // unlock the cell
+        my_mutex_unlock(lock);
+
+    }
+}
+
+
+
+
+void right_to_left(){
+    int ini_value = canvas_dimension.width, end_value = 0;
+    int row = 0;
+    int *lock;
+    for (int i = ini_value; i >= end_value; --i) {
+        int n = canvas_dimension.width;
+
+        // lock the cell before writing to it
+        lock = get_lock_at(row, i);
+        my_mutex_lock(lock);
+
+        // write to the cell
+        char *cell = canvas + row*n + i;
+        *(cell) = SYMBOL;
+
+        usleep(0.05*TO_MICROSECONDS);
+
+        *cell = EMPTY_CHAR;
+
+        // unlock the cell
+        my_mutex_unlock(lock);
+
+    }
+}
+
+
+
+
+
+
+
+/*
+ * Sets -locks- matrix and initializes each value.
+ * -canvas_dimension- must be already initialized
+ */
+void init_locks(){
+    locks = malloc(canvas_dimension.width*canvas_dimension.height*sizeof(int));
+    int *current_lock;
+    for (int i = 0; i < canvas_dimension.height; ++i) {
+        for (int j = 0; j < canvas_dimension.width; ++j) {
+            current_lock = get_lock_at(i, j);
+            my_mutex_init(current_lock);
+//            printf("curr lock: %d\n",*current_lock);
+        }
+    }
+}
+
+
+
 // testing main
 int main(){
+    canvas_dimension.width = 210;
+    canvas_dimension.height = 50;
+
     initscr();
 
-    getmaxyx(stdscr, canvas_dimension.height, canvas_dimension.width);
+    init_locks();
 
-    canvas  = malloc(canvas_dimension.height * canvas_dimension.width);
+
+    my_thread_init();
+
+    canvas = malloc(canvas_dimension.height * canvas_dimension.width);
     clean_canvas(canvas, canvas_dimension);
     paste_canvas();
 
+//     Launch a thread that moves from left to right
+    my_thread_create(left_to_right, 1, ROUNDROBIN);
 
-    //parse json
-    parse_file();
+    // other direction
+//    my_thread_create(right_to_left, 1, ROUNDROBIN);
 
-    //iterate all objects
-    fpoint ini, end;
-    for (int i = 0; i < num_objects; ++i) {
-        ini.x = (float)figure_list[i].initial_pos_x;
-        ini.y = (float)figure_list[i].initial_pos_y;
+    //close a lock in the path
+    my_mutex_lock(get_lock_at(0, 50));
 
-        end.x = (float)figure_list[i].end_pos_x;
-        end.y = (float)figure_list[i].end_pos_y;
+//    while(1){}
 
-        draw_line(ini, end);
-
+    for(int n=0;n<300;n++){
+//        refresh();
+        paste_canvas();
+        usleep(0.1*TO_MICROSECONDS);
     }
-
-
 
     getchar();
     endwin();
 
-}
+    return 0;
 
+}
 
 
 
