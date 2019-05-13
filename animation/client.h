@@ -15,5 +15,6 @@ void display_data(char *data, area terminal_size);
 
 void full_terminal(area terminal_size, char symbol);
 
+int read_port();
 
 #endif //MULTIDISPLAY_CLIENT_H

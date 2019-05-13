@@ -9,7 +9,7 @@ int main(){
     int socket_fd = create_socket();
 
     // connect to server
-    connect_to_server(socket_fd, PORT);
+    connect_to_server(socket_fd, read_port());
 
     initscr();
 

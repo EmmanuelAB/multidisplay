@@ -1,9 +1,16 @@
 #include "server.h"
 
+int read_port(){
+    int port;
+    FILE *file = fopen("../test_files/port", "r");
+    fscanf(file,"%d", &port);
+    return port;
+}
+
 int start_server(){
     int socket_fd = create_socket();
-    bind_socket(socket_fd, PORT);
-    start_listening(socket_fd, PORT);
+    bind_socket(socket_fd, read_port());
+    start_listening(socket_fd, read_port());
     return socket_fd;
 
 }
@@ -29,10 +36,14 @@ int wait_connections(int socket_fd, int *sockets){
 
 
 void ask_terminal_size(area *dimension){
-    printf("Enter terminal heigth:");
-    scanf("%d", &dimension->height);
-    printf("Enter terminal width:");
-    scanf("%d", &dimension->width);
+
+    dimension->width = 40;
+    dimension->height = 10;
+
+//    printf("Enter terminal heigth:");
+//    scanf("%d", &dimension->height);
+//    printf("Enter terminal width:");
+//    scanf("%d", &dimension->width);
 }
 
 

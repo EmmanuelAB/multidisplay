@@ -9,7 +9,7 @@
 #include "../linked_list/list.h"
 
 
-#define ALARM_FREQUENCY 0.8
+#define ALARM_FREQUENCY 0.05
 #define TO_MICROSECONDS 1000000
 
 #define MUTEX_LOCKED_VALUE 1

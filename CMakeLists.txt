@@ -4,7 +4,6 @@ project(multidisplay C)
 set(CMAKE_C_STANDARD 99)
 
 add_executable(server
-        main.c
         animation/server_main.c
         sockets/socket_utils.c
         utils/error_handling.c

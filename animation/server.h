@@ -11,10 +11,16 @@
 #include "../utils/area.h"
 #include "../utils/point.h"
 
-#define MAX_CLIENTS 3
+#define MAX_CLIENTS 2
 #define EMPTY_CHAR '-'
 
 int start_server();
+
+
+/*
+ * Read a port from a fixed file
+ */
+int read_port();
 
 
 
