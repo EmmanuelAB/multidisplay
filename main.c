@@ -1,6 +1,9 @@
 #include <unistd.h>
 #include "my_thread/my_thread.h"
 
+int global_var = 0;
+int mutex;
+
 void function2(){
     int n = 0;
     while(n < 10){
@@ -28,6 +31,10 @@ void function3(){
     int n = 0;
     while(n < 25){
         printf("\nFrom thread 3\n");
+        my_mutex_lock(&mutex);
+        global_var++;
+        printf("\nGlobal var thread 3 %d\n", global_var);
+        my_mutex_unlock(&mutex);
         usleep(0.25 * TO_MICROSECONDS);
         n++;
     }
@@ -35,11 +42,25 @@ void function3(){
     my_thread_end();
 }
 
+void test_function(){
+    my_mutex_lock(&mutex);
+    printf("\nLocked by thread\n");
+}
+
+void test(){
+    my_mutex_lock(&mutex);
+    printf("\nLocked by main\n");
+    my_thread_create(test_function, (int) NULL, ROUNDROBIN );
+    while(1){}
+}
+
 int main() {
 
     my_thread_init();
+    my_mutex_init(&mutex);
 
-    int thread_id1 = my_thread_create(function, (int) NULL, ROUNDROBIN );
+
+    /*int thread_id1 = my_thread_create(function, (int) NULL, ROUNDROBIN );
 
     int thread_id2 = my_thread_create(function2, (int) NULL, ROUNDROBIN );
 
@@ -47,8 +68,12 @@ int main() {
 
     int n = 0;
     while(n < 5){
-        if(n == 3) my_thread_yield();
-        printf("Main doing nothing\n");
+        if(global_var == 3) my_thread_yield();
+        my_mutex_lock(&mutex);
+        global_var++;
+        printf("\nGlobal var main %d\n", global_var);
+        my_mutex_unlock(&mutex);
+        printf("\nMain doing nothing\n");
         usleep(0.25*TO_MICROSECONDS);
         n++;
     }
@@ -65,7 +90,9 @@ int main() {
         list_print(ready_threads_round_robin);
     else list_print(ready_threads_lottery);
 
-    printf("\nFinish main\n");
+    printf("\nFinish main\n");*/
+
+    test();
 
     return 0;
 
