@@ -16,9 +16,11 @@ list *list_create(const char *format){
 void list_add_element(list *a_list, TYPE element){
     // create a new node to insert
     node *new_node = malloc(sizeof(node));
+
     // set the end of the list
     new_node->next = NULL;
 
+    // set the value of the new node
     new_node->value = element;
 
 
@@ -40,6 +42,7 @@ void list_add_element(list *a_list, TYPE element){
         a_list->last = new_node;
     }
 
+    // update list size
     a_list->size++;
 
 }

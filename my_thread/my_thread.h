@@ -9,7 +9,7 @@
 #include "../linked_list/list.h"
 
 
-#define ALARM_FREQUENCY 0.05
+#define ALARM_FREQUENCY 0.8
 #define TO_MICROSECONDS 1000000
 
 #define MUTEX_LOCKED_VALUE 1
@@ -29,7 +29,7 @@
 // 1 for round robin, 2 for lottery, simulation scheduler real time
 static int SCHEDULER = ROUNDROBIN;//for testing
 
-static int total_tickets = 45;
+static int total_tickets = 20;
 
 static int serial_id = 0; // a consecutive serial to track the current track id to generate and return
 

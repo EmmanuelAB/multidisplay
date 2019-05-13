@@ -31,10 +31,10 @@ void function3(){
     int n = 0;
     while(n < 25){
         printf("\nFrom thread 3\n");
-        my_mutex_lock(&mutex);
+        /*my_mutex_lock(&mutex);
         global_var++;
         printf("\nGlobal var thread 3 %d\n", global_var);
-        my_mutex_unlock(&mutex);
+        my_mutex_unlock(&mutex);*/
         usleep(0.25 * TO_MICROSECONDS);
         n++;
     }
@@ -57,10 +57,10 @@ void test(){
 int main() {
 
     my_thread_init();
-    my_mutex_init(&mutex);
+    //my_mutex_init(&mutex);
 
 
-    /*int thread_id1 = my_thread_create(function, (int) NULL, ROUNDROBIN );
+    int thread_id1 = my_thread_create(function, (int) NULL, ROUNDROBIN );
 
     int thread_id2 = my_thread_create(function2, (int) NULL, ROUNDROBIN );
 
@@ -68,11 +68,11 @@ int main() {
 
     int n = 0;
     while(n < 5){
-        if(global_var == 3) my_thread_yield();
-        my_mutex_lock(&mutex);
+        if(n == 3) my_thread_yield();
+        /*my_mutex_lock(&mutex);
         global_var++;
         printf("\nGlobal var main %d\n", global_var);
-        my_mutex_unlock(&mutex);
+        my_mutex_unlock(&mutex);*/
         printf("\nMain doing nothing\n");
         usleep(0.25*TO_MICROSECONDS);
         n++;
@@ -90,9 +90,9 @@ int main() {
         list_print(ready_threads_round_robin);
     else list_print(ready_threads_lottery);
 
-    printf("\nFinish main\n");*/
+    printf("\nFinish main\n");
 
-    test();
+    //test();
 
     return 0;
 

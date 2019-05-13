@@ -226,6 +226,7 @@ TCB *lottery(){
     current_context_index = next_index;
 
     new_tcb = list_get_element_at(ready_threads_lottery, next_index);
+    printf("\nNext index %d\n", next_index);
 
     //Do not remove the main from the list.
     if(new_tcb->id != 0){
