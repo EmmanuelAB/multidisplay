@@ -20,7 +20,7 @@ int my_thread_create( void *function, int param, int scheduler ) {
 
     // if the scheduler hasn't been initialized yet must
     // create TCB so the caller can be scheduled like any other threads
-    if(! scheduler_inialized){
+    if(! scheduler_initialized){
         // save this context (the caller)
         TCB *caller_tcb = malloc(sizeof(TCB));
         caller_tcb->context = malloc(sizeof(ucontext_t));
@@ -44,7 +44,7 @@ int my_thread_create( void *function, int param, int scheduler ) {
         makecontext(&scheduler_context, schedule_next_thread, 0);
 
         // avoid entering this if again
-        scheduler_inialized = 1;
+        scheduler_initialized = 1;
 
         // change to scheduler context to start multiplexing the threads
         swapcontext(caller_tcb->context , &scheduler_context);
@@ -424,4 +424,94 @@ void my_thread_chsched(int thread_id){
         //list_print(ready_threads_lottery);
         //list_print(ready_threads_round_robin);
     }
+}
+
+int get_thread_index_waiting_for(TCB* thread1){
+    node* iterator = blocked_threads_list_round_robin->first;
+    int index = 0;
+    while(iterator != NULL){
+        if(iterator->value->waiting_thread_id == thread1->id){
+            return index;
+        }
+        iterator = iterator->next;
+        index++;
+    }
+    return FALSE;
+}
+
+void my_thread_end(){
+
+    printf("\nIn END\n");
+
+    // if other thread is waiting for this one push it into the ready list
+    int waiting_thread_index = get_thread_index_waiting_for((list_get_element_at(ready_threads_list, current_context_index)));
+    //printf("\nWaiting thread index %d\n", waiting_thread_index);
+
+    // remove context from ready list
+    list_remove_element_at(ready_threads_list, current_context_index);
+
+    if(waiting_thread_index != FALSE){
+
+        printf("\nSomeone is waiting for me\n");
+
+        TCB* waiting_thread_TCB = list_remove_element_at(blocked_threads_list_round_robin, waiting_thread_index);
+
+        //printf("\nThread removed from blocked thread list\n");
+
+        printf("\nThread removed %d\n", waiting_thread_TCB->id);
+
+        //printf("\nReady size before %d\n", ready_threads_list->size);
+
+        list_add_element(ready_threads_list, waiting_thread_TCB);
+
+        //printf("\nReady size after %d\n", ready_threads_list->size);
+
+        //printf("\nThread added to ready list\n");
+
+        list_print(ready_threads_list);
+        list_print(blocked_threads_list_round_robin);
+    }
+
+    // swap to scheduler context
+    setcontext(&scheduler_context);
+}
+
+
+void my_thread_join(int thread_id){
+
+    printf("\nIn join");
+
+    list* current_list;
+
+    // set waiting id attribute to caller thread
+    if(SCHEDULER == ROUNDROBIN){
+        current_list = ready_threads_round_robin;
+    }
+    else{
+        current_list = ready_threads_lottery;
+    }
+
+    TCB* caller_thread_TCB = list_get_element_at(current_list, current_context_index);
+    caller_thread_TCB->waiting_thread_id = thread_id;
+
+    //printf("\nCurrent thread index %d\n", current_context_index);
+    //printf("Caller id %d\n", caller_thread_TCB->id);
+    printf("\nWaiting thread id %d\n", caller_thread_TCB->waiting_thread_id);
+
+    // remove caller thread from scheduler ready list
+    TCB* caller_threadTCB = list_remove_element_at(current_list, current_context_index);
+    // push caller thread to waiting list
+    list_add_element(blocked_threads_list_round_robin, caller_threadTCB);
+
+    list_print(current_list);
+    list_print(blocked_threads_list_round_robin);
+
+    // swap to scheduler context
+    swapcontext(caller_thread_TCB->context, &scheduler_context);
+}
+
+void my_thread_yield(){
+    // raise the signal to activate the handle alarm and swap to
+    // scheduler context after saving current
+    kill(getpid(), SIGALRM);
 }

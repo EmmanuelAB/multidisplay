@@ -13,6 +13,7 @@ typedef struct TCB {
     int scheduler;
     int state;
     int tickets;
+    int waiting_thread_id;
     ucontext_t *context;
 } TCB;
 

@@ -39,7 +39,11 @@ static list *ready_threads_round_robin;
 
 static list *ready_threads_lottery;
 
-static int scheduler_inialized = 0;
+static list *blocked_threads_list_round_robin;
+
+static list *blocked_threads_list_lottery;
+
+static int scheduler_initialized = 0;
 
 static ucontext_t scheduler_context; // where the context will decide who's next running
 
@@ -163,6 +167,13 @@ void my_thread_lock(int *lock);
 void my_mutex_init(int *lock);
 
 
+void my_thread_end();
+
+
+void my_thread_yield();
+
+
+void my_thread_join(int thread_id);
 
 
 /*
