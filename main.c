@@ -47,6 +47,7 @@ int main() {
 
     int n = 0;
     while(n < 5){
+        if(n == 3) my_thread_yield();
         printf("Main doing nothing\n");
         usleep(0.25*TO_MICROSECONDS);
         n++;
