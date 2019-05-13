@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include "server.h"
 #include "../my_thread/my_thread.h"
+#include "../parse_json/parse_json.h"
 
 #define SYMBOL 'X'
 
@@ -83,8 +84,17 @@ int main() {
     // init the library
     my_thread_init();
 
-    int animator_id;
-    // Launch threads moving 1 char each one
+
+    // parse json file to get the paths to animate objects
+    parse_file();
+
+    for (int i = 0; i < num_objects; ++i) {
+
+    }
+
+
+
+    // launch threads moving 1 char each one
     for (int i = 0; i < 1; ++i) {
         animator_id = my_thread_create(animate_char, i, ROUNDROBIN);
         printf("animator started, id:%d\n", animator_id);
