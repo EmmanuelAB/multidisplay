@@ -10,7 +10,7 @@
           "end_time" : 6,
           "initial_pos_x" : 0,
           "initial_pos_y" : 0,
-          "end_pos_x" : 20,
+          "end_pos_x" : 40,
           "end_pos_y" : 0,
           "initial_angle" : 45,
           "end_angle" : 90
@@ -22,12 +22,40 @@
           "figure_file": "figure1.txt",
           "start_time" : 5,
           "end_time" : 9,
-          "initial_pos_x" : 20,
+          "initial_pos_x" : 0,
           "initial_pos_y" : 2,
-          "end_pos_x" : 10,
+          "end_pos_x" : 40,
           "end_pos_y" : 2,
           "initial_angle" : 90,
           "end_angle" : 90
-        }
+        },
+    {
+      "type" : 3,
+      "rows" : 8,
+      "cols" : 8,
+      "figure_file": "figure1.txt",
+      "start_time" : 5,
+      "end_time" : 9,
+      "initial_pos_x" : 0,
+      "initial_pos_y" : 4,
+      "end_pos_x" : 40,
+      "end_pos_y" : 4,
+      "initial_angle" : 90,
+      "end_angle" : 90
+    },
+    {
+      "type" : 3,
+      "rows" : 8,
+      "cols" : 8,
+      "figure_file": "figure1.txt",
+      "start_time" : 5,
+      "end_time" : 9,
+      "initial_pos_x" : 0,
+      "initial_pos_y" : 9,
+      "end_pos_x" : 40,
+      "end_pos_y" : 9,
+      "initial_angle" : 90,
+      "end_angle" : 90
+    }
   ]
 }

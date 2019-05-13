@@ -76,10 +76,7 @@ void calc_func(fpoint a, fpoint b, float *m, float *be){
 void animate_simple(int index){
     int y, n = canvas_dimension.width;
     for (int x = 0 ; x < n ; ++x) {
-        y = (int) round((double) eval(m, x, be));
-        move( -1*y, x); //remove the negative
-
-        char *cell = canvas + y*n + x;
+        char *cell = canvas + index*n + x;
         *(cell) = SYMBOL;
         usleep(0.05*TO_MICROSECONDS);
         *cell = EMPTY_CHAR;
@@ -108,7 +105,7 @@ void animate_object( int index ){
     int y, n = canvas_dimension.width;
     for (int x = ini.x; x < end.x; ++x) {
         y = (int) round((double) eval(m, x, be));
-        move( -1*y, x); //remove the negative
+        y *= -1; //remove the negative
 
         char *cell = canvas + y*n + x;
         *(cell) = SYMBOL;
@@ -155,6 +152,7 @@ int main() {
     for (int i = 0; i < num_objects; ++i) {
 //    for (int i = 0; i < 1; ++i) {
         animator_id = my_thread_create(animate_object, i, ROUNDROBIN);
+//        animator_id = my_thread_create(animate_simple, i, ROUNDROBIN);
         printf("animator started, id:%d\n", animator_id);
         list_add_element(ids, animator_id);
     }

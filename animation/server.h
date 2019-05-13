@@ -11,7 +11,7 @@
 #include "../utils/area.h"
 #include "../utils/point.h"
 
-#define MAX_CLIENTS 1
+#define MAX_CLIENTS 2
 #define EMPTY_CHAR '-'
 
 int start_server();
