@@ -95,7 +95,7 @@ void schedule_next_thread(){
     current_context = context_to_run;
 
     // Set the alarm
-    alarm(ALARM_FREQUENCY);
+    ualarm(ALARM_FREQUENCY*TO_MICROSECONDS, 0);
 
     printf("\nBefore set context\n");
 

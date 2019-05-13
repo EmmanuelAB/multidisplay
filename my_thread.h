@@ -9,7 +9,7 @@
 #include "list.h"
 
 
-#define ALARM_FREQUENCY 1
+#define ALARM_FREQUENCY 0.0001
 #define TO_MICROSECONDS 1000000
 #define FALSE -1
 #define TRUE 1

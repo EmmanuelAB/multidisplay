@@ -14,7 +14,7 @@ void function2(){
 
 void function(){
     int n = 0;
-    while(n < 5){
+    while(n < 6){
         printf("From thread 1\n");
         usleep(0.25 * TO_MICROSECONDS);
         n++;
