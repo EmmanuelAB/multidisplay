@@ -4,7 +4,7 @@
 void function2(){
     int n = 0;
     while(n < 10){
-        printf("From thread 2\n");
+        printf("\nFrom thread 2\n");
         usleep(0.25 * TO_MICROSECONDS);
         n++;
     }
@@ -15,7 +15,7 @@ void function2(){
 void function(){
     int n = 0;
     while(n < 5){
-        printf("From thread 1\n");
+        printf("\nFrom thread 1\n");
         usleep(0.25 * TO_MICROSECONDS);
         n++;
     }
@@ -27,7 +27,7 @@ void function(){
 void function3(){
     int n = 0;
     while(n < 25){
-        printf("From thread 3\n");
+        printf("\nFrom thread 3\n");
         usleep(0.25 * TO_MICROSECONDS);
         n++;
     }

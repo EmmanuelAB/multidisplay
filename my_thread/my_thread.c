@@ -272,7 +272,7 @@ void schedule_next_thread(){
         //update the current context
         current_context = context_to_run;
         // Set the alarm
-        alarm(ALARM_FREQUENCY);
+        ualarm(ALARM_FREQUENCY*TO_MICROSECONDS, 0);
 
         printf("\nNext thread id %d\n", new_tcb->id);
         list_print(ready_threads_round_robin);
@@ -450,7 +450,6 @@ int get_thread_index_waiting_for(TCB* thread1){
     if(SCHEDULER == ROUNDROBIN) blocked_list = blocked_threads_list_round_robin;
     else blocked_list = blocked_threads_list_lottery;
 
-    printf("\nBefore while in get thread index waiting\n");
     node* iterator = blocked_list->first;
     int index = 0;
     while(iterator != NULL){
@@ -481,7 +480,7 @@ void my_thread_end(){
 
     // if other thread is waiting for this one push it into the ready list
     int waiting_thread_index = get_thread_index_waiting_for((list_get_element_at(current_ready_list, current_context_index)));
-    //printf("\nWaiting thread index %d\n", waiting_thread_index);
+    printf("\nWaiting thread index %d\n", waiting_thread_index);
 
     // remove context from ready list
     list_remove_element_at(current_ready_list, current_context_index);
@@ -551,5 +550,6 @@ void my_thread_join(int thread_id){
 void my_thread_yield(){
     // raise the signal to activate the handle alarm and swap to
     // scheduler context after saving current
+    printf("\nIn Yield\n");
     kill(getpid(), SIGALRM);
 }
